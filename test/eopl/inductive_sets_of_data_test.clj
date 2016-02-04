@@ -31,3 +31,21 @@
     (is (= '(c1 c1 a4) (remove-first 'a4 '(c1 a4 c1 a4))))
     (is (= '() (remove-first 'x '())))
     ))
+
+(deftest occurs-free?_test
+  (testing "occurs free?"
+    (is (= true  (occurs-free? 'x 'x)))
+    (is (= false (occurs-free? 'x 'y)))
+    (is (= false (occurs-free? 'x '(lambda (x) (x y)))))
+    (is (= true  (occurs-free? 'x '(lambda (y) (x y)))))
+    (is (= true  (occurs-free? 'x '((lambda (x) x) (x y)))))
+    (is (= true  (occurs-free? 'x '(lambda (y) (lambda (z) (x (y z)))))))
+    ))
+
+(deftest subst-test
+  (testing "subst test"
+    (is (= '(a a c d e) (subst 'a 'b '(a b c d e))))
+    (is (= '(a) (subst 'a 'b '(b))))
+    (is (= '(a a a) (subst 'a 'b '(b b b))))
+    (is (= '((s b) c d s) (subst 's 'a '((a b) c d s))))
+    ))

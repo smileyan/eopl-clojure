@@ -1,4 +1,5 @@
-(ns eopl.inductive-sets-of-data)
+(ns eopl.inductive-sets-of-data
+  (:require [eopl.common :refer :all]))
 
 ; in-S? : N -> Bool
 ; usage: (in-S? n) = #t if n is in S, #f otherwise
@@ -40,3 +41,59 @@
     (if (= (first los) s)
       (rest los)
       (cons (first los) (remove-first s (rest los))))))
+
+; LcExp ::= Identifier
+;       ::= (lambda (Identifier) LcExp)
+;       ::= (LcExp LcExp)
+; occurs-free? : Sym * LcExp -> Bool
+; usage: returns #t if the symbol var occurs free
+;        in exp, otherwise returns #f.
+
+(defn occurs-free? [var exp]
+  (cond
+    (symbol? exp) (= var exp)
+    (= (car exp) 'lambda)
+     (and
+       (not (= var (car (cadr exp))))
+       (occurs-free? var (caddr exp)))
+    :else
+      (or 
+        (occurs-free? var (car exp))
+        (occurs-free? var (cadr exp)))))
+
+; S-list ::= ({S-exp}*)
+; S-exp  ::= Symbol | S-list
+
+; S-list ::= ()
+;        ::= (S-exp . S-list)
+;  S-exp ::= Symbol | S-list
+
+; subst: Sym * Sym * S-list -> S-list
+(declare subst-in-s-exp)
+(defn subst [new old slist]
+  (if (empty? slist)
+    '()
+    (cons
+      (subst-in-s-exp new old (car slist))
+      (subst new old (cdr slist)))))
+
+; subst-in-s-exp : Sym * Sym * S-exp -> S-exp
+(defn subst-in-s-exp [new old sexp]
+  (if (symbol? sexp)
+    (if (= sexp old) new sexp)
+    (subst new old sexp)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                              Follow the Grammar!                              ;
+; When defining a procedure that operates on inductivly defined data, the       ;
+; structure of the program should be patterned after the structure of the data. ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; . Write one procedure for each nonterminal in the grammar. The procedure
+;   will be responsible for handling the data corresponding to that 
+;   nonterminal, and nothing else.
+
+; . In each procedure, write one alternative for each production corresponding
+;   to that nonterminal. You may need additional case structure, but this
+;   will get you started. For each nonterminal that appears in the right-hand 
+;   side, write a recursive call to the procedure for that nonterminal.
