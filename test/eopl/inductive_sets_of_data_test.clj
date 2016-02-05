@@ -49,3 +49,11 @@
     (is (= '(a a a) (subst 'a 'b '(b b b))))
     (is (= '((s b) c d s) (subst 's 'a '((a b) c d s))))
     ))
+
+(deftest number-elements-test
+  (testing "number elements"
+    (is (= (number-elements '(a b c d e)) '((0 a) (1 b) (2 c) (3 d) (4 e))))))
+
+(deftest list-sum-test
+  (testing "(list-sum (0 (1 (2)))"
+    (is (= (list-sum (list 1 2 3 4 5)) 15))))

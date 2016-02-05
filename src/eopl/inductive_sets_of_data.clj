@@ -97,3 +97,41 @@
 ;   to that nonterminal. You may need additional case structure, but this
 ;   will get you started. For each nonterminal that appears in the right-hand 
 ;   side, write a recursive call to the procedure for that nonterminal.
+
+; 1.3 Auxiliary Procedures and Context Arguments
+
+; number-elements-from : Listof(SchemeVal) * Int -> Listof(List(Int, SchemeVal))
+; usage: (number-elements-from '(v0 v1 v2 ...) n)
+;         = ((n v0) (n + 1 v1) (n+2 v2) ...)
+(defn number-elements-from [lst n]
+  (if (empty? lst)
+    '()
+    (cons
+      (list n (car lst))
+      (number-elements-from (cdr lst) (+ n 1)))))
+
+(defn number-elements [lst]
+  (number-elements-from lst 0))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                  No Mysterious Auxiliaries!                              ;
+; When defining an auxiliary procedure, always specify what it does on all ;
+; arguments, not just the initial values.                                  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; list-sum : Listof(Int) -> Int
+(defn list-sum [loi]
+  (if (empty? loi)
+    0
+    (+ (car loi)
+       (list-sum (cdr loi)))))
+
+; partial-vector-sum : Vectorof(Int) * Int -> Int
+; usage: if 0 <= n < length(v), then
+;           (partial-vector-sum v n) = sum(vi)(0<= i <=n)
+
+(defn partial-vector-sum [v n]
+  (if (empty? n)
+    (nth v 0)
+    (+ (nth v n)
+       (partial-vector-sum v (- n 1)))))
