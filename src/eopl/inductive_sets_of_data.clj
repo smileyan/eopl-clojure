@@ -131,7 +131,17 @@
 ;           (partial-vector-sum v n) = sum(vi)(0<= i <=n)
 
 (defn partial-vector-sum [v n]
-  (if (empty? n)
+  (if (zero? n)
     (nth v 0)
     (+ (nth v n)
        (partial-vector-sum v (- n 1)))))
+
+; vector-sum : Vectorof(Int) -> Int
+; usage: (vector-sum v) = sum(vi)(0 < i < length(v))
+(defn vector-sum [v]
+  (let [n (count v)]
+    (if (zero? n)
+      0
+      (partial-vector-sum v (- n 1)))))
+
+

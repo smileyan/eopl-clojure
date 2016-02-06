@@ -57,3 +57,7 @@
 (deftest list-sum-test
   (testing "(list-sum (0 (1 (2)))"
     (is (= (list-sum (list 1 2 3 4 5)) 15))))
+
+(deftest vector-sum-test
+  (testing "vector sum test"
+    (is (= 6 (vector-sum [1 2 3])))))
