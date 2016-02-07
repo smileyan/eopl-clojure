@@ -6,6 +6,7 @@
             [eopl.ch1.09 :refer :all]
             [eopl.ch1.12 :refer :all]
             [eopl.ch1.13 :refer :all]
+            [eopl.ch1.15 :refer :all]
             ))
 
 (deftest nth-element-test
@@ -42,3 +43,11 @@
     (is (= '(a a a) (subst-map 'a 'b '(b b b))))
     (is (= '((s b) c d s) (subst-map 's 'a '((a b) c d s))))
     ))
+
+(deftest duple-test
+  (testing "(duple n x) test"
+    (is (= (duple 2 3) '(3 3)))
+    (is (= (duple 4 '(ha ha)) '((ha ha) (ha ha) (ha ha) (ha ha))))
+    (is (= (duple 0 '(blha)) '()))
+    ))
+
