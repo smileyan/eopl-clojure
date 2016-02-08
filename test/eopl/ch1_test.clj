@@ -7,6 +7,10 @@
             [eopl.ch1.12 :refer :all]
             [eopl.ch1.13 :refer :all]
             [eopl.ch1.15 :refer :all]
+            [eopl.ch1.16 :refer :all]
+            [eopl.ch1.17 :refer :all]
+            [eopl.ch1.18 :refer :all]
+            [eopl.ch1.19 :refer :all]
             ))
 
 (deftest nth-element-test
@@ -51,3 +55,26 @@
     (is (= (duple 0 '(blha)) '()))
     ))
 
+(deftest invert-lst-test
+  (testing "invert lst test"
+    (is (= '((1 a) (2 a) (b 1) (b 2)) (invert '((a 1) (a 2) (1 b) (2 b)))))
+    ))
+
+(deftest down-lst-test
+  (testing "down lst test"
+    (is (= '((1) (2) (3)) (down '(1 2 3))))
+    (is (= '(((a)) ((fine)) ((idea))) (down '((a) (fine) (idea)))))
+    (is (= '((a) ((more (complicated))) (object)) (down '(a (more (complicated)) object))))
+    ))
+
+(deftest swapper-test
+  (testing "(swapper s1 s2 slist)"
+    (is (= '(d b c a) (swapper 'a 'd '(a b c d))))
+    (is (= '(d a () c a) (swapper 'a 'd '(a d () c d))))
+    (is (= '((y) x (z (y))) (swapper 'x 'y '((x) y (z (x))))))
+    ))
+
+(deftest list-set-test
+  (testing "(list-set lst n x"
+    (is (= (list-set '(a b c d) 2 '(1 2)) '(a b (1 2) d)))
+    ))
