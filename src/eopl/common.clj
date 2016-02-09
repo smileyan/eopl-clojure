@@ -3,6 +3,9 @@
 (defn car [l]
   (first l))
 
+(defn caar [l]
+  (car (car l)))
+
 (defn cdr [l]
   (rest l))
 

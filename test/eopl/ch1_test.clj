@@ -11,6 +11,14 @@
             [eopl.ch1.17 :refer :all]
             [eopl.ch1.18 :refer :all]
             [eopl.ch1.19 :refer :all]
+            [eopl.ch1.20 :refer :all]
+            [eopl.ch1.21 :refer :all]
+            [eopl.ch1.22 :refer :all]
+            [eopl.ch1.23 :refer :all]
+            [eopl.ch1.24 :refer :all]
+            [eopl.ch1.25 :refer :all]
+            [eopl.ch1.26 :refer :all]
+            [eopl.ch1.27 :refer :all]
             ))
 
 (deftest nth-element-test
@@ -77,4 +85,54 @@
 (deftest list-set-test
   (testing "(list-set lst n x"
     (is (= (list-set '(a b c d) 2 '(1 2)) '(a b (1 2) d)))
+    ))
+
+(deftest count-occurrences-test
+  (testing "(count-occurrences s slist)"
+    (is (= 3 (count-occurrences 'x '((f x) y (((x z) x))))))
+    (is (= 3 (count-occurrences 'x '((f x) y (((x z) () x))))))
+    (is (= 0 (count-occurrences 'w '((f x) y (((x z) x))))))
+    ))
+
+(deftest product-test
+  (testing "(product sos1 sos2)"
+    (is (= '((a x) (a y) (b x) (b y) (c x) (c y))) (product '(a b c) '(x y)))
+    ))
+
+(deftest filter-in-test
+  (testing "(filter-in pred lst)"
+    (is (= '(2 7) (filter-in number? '(a 2 (1 3) b 7))))
+    (is (= '(a foo) (filter-in symbol? '(a (b c) 17 foo))))
+    ))
+
+(deftest list-index-test
+  (testing "(list-index pre lst)"
+    (is (= 1 (list-index number? '(a 2 (1 3) b 7))))
+    (is (= 0 (list-index symbol? '(a 2 (1 3) b 7))))
+    (is (= false (list-index symbol? '(1 2 (a b) 3))))
+    ))
+
+(deftest every-test
+  (testing "(every? pred lst)"
+    (is (= false (my-every? number? '(a b c 3 e))))
+    (is (= true (my-every? number? '(1 2 3 4 5))))
+    ))
+
+(deftest exists-test
+  (testing "(exists pred lst)"
+    (is (= true (exists? number? '(a b c 3 e))))
+    (is (= false (exists? number? '(a b c d e))))
+    ))
+
+(deftest up-test
+  (testing "(up lst)"
+    (is (= '(1 2 3 4) (up '((1 2) (3 4)))))
+    (is (= '(x (y) z) (up '((x (y)) z))))
+    ))
+
+(deftest flatten-test
+  (testing "(flatten slist)"
+    (is (= '(a b c) (my-flatten '(a b c))))
+    (is (= '(a b c) (my-flatten '((a) () (b ()) () (c)))))
+    (is (= '(a b c) (my-flatten '(a b (( (c)))))))
     ))
