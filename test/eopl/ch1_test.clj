@@ -19,6 +19,10 @@
             [eopl.ch1.25 :refer :all]
             [eopl.ch1.26 :refer :all]
             [eopl.ch1.27 :refer :all]
+            [eopl.ch1.28 :refer :all]
+            [eopl.ch1.29 :refer :all]
+            [eopl.ch1.30 :refer :all]
+            [eopl.ch1.31 :refer :all]
             ))
 
 (deftest nth-element-test
@@ -135,4 +139,30 @@
     (is (= '(a b c) (my-flatten '(a b c))))
     (is (= '(a b c) (my-flatten '((a) () (b ()) () (c)))))
     (is (= '(a b c) (my-flatten '(a b (( (c)))))))
+    ))
+
+(deftest merge-test
+  (testing "(merge loi1 loi2)"
+    (is (= '(1 1 2 4 8) (my-merge '(1 4) '(1 2 8))))
+    (is (= '(3 35 62 81 83 85 90 90 91) (my-merge '(35 62 81 90 91) '(3 83 85 90))))
+    ))
+
+(deftest sort-test
+  (testing "(sort loi)"
+    (is (= '(2 2 3 5 8) (my-sort '(8 2 5 2 3))))))
+
+(deftest sort-predicate-test
+  (testing "sort pred loi"
+    (is (= '(2 2 3 5 8) (my-sort->predicate < '(8 2 5 2 3))))))
+
+(deftest bintree-test
+  (testing "(bintree test)"
+    (is (= {:key 5, :lson nil, :rson nil} (leaf 5)))
+    (is (= 5 (contents-of (leaf 5))))
+    (is (= true (leaf? (leaf 5))))
+    (is (= {:key 'red, :lson {:key 5, :lson nil, :rson nil}, :rson {:key 8, :lson nil, :rson nil}} (interior-node 'red (leaf 5) (leaf 8))))
+    (is (= 'red (contents-of (interior-node 'red (leaf 5) (leaf 8)))))
+    (is (= {:key 5, :lson nil, :rson nil} (lson (interior-node 'red (leaf 5) (leaf 8)))))
+    (is (= {:key 8, :lson nil, :rson nil} (rson (interior-node 'red (leaf 5) (leaf 8)))))
+    (is (= false (leaf? (interior-node 'red (leaf 5) (leaf 8)))))
     ))
