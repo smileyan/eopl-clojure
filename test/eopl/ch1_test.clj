@@ -23,6 +23,9 @@
             [eopl.ch1.29 :refer :all]
             [eopl.ch1.30 :refer :all]
             [eopl.ch1.31 :refer :all]
+            [eopl.ch1.32 :refer :all]
+            [eopl.ch1.33 :refer :all]
+            [eopl.ch1.34 :refer :all]
             ))
 
 (deftest nth-element-test
@@ -166,3 +169,27 @@
     (is (= {:key 8, :lson nil, :rson nil} (rson (interior-node 'red (leaf 5) (leaf 8)))))
     (is (= false (leaf? (interior-node 'red (leaf 5) (leaf 8)))))
     ))
+
+(deftest double-tree-test
+  (testing "(double-tree tree)"
+    (is (= 10 (contents-of (double-tree (leaf 5)))))))
+
+(deftest mark-leaves-with-red-depth-test
+  (testing "(mark-leaves-with-red-depth tree)"
+    (is (= 2 (contents-of (rson (rson (rson (mark-leaves-with-red-depth
+                                                (interior-node 'red
+                                                (interior-node 'bar
+                                                    (leaf 26)
+                                                    (leaf 12))
+                                                (interior-node 'red
+                                                    (leaf 11)
+                                                    (interior-node 'quux
+                                                    (leaf 117)
+                                                    (leaf 14)))))))))))))
+
+(deftest path-test
+  (testing "(path n tree)"
+    (is (= '(right left left) (path 17 '(14 (7 () (12 () ()))
+                                            (26 (20 (17 () ())
+                                                    ())
+                                                (31 () ()))))))))
