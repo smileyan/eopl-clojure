@@ -15,16 +15,22 @@
 ; [n + 1] = (#t . [n])
 
 (defn zero []
-  '())
+;   '())
+  0)
 
 (defn is-zero? [n]
-  (empty? n))
+;   (empty? n))
+  (= n 0))
 
 (def successor [n]
-  (cons true n))
+;   (cons true n))
+  (+ n 1))
 
 (defn predecessor [n]
-  (cdr n))
+;   (cdr n) )
+  (- n 1))
+
+; Scheme number representation:
 
 ; t ::=                                                 terms:
 ;        true                                    constant true
@@ -58,3 +64,10 @@
 ; Finally, let
 ;        S  = ∪Si.
 ;             i 
+
+; Bignum representation
+; [n] = ()        n = 0
+;     | (r . [q]) n = qN + r, 0 ≤ r < N
+
+; N = 16
+; [33] = (1 2)     [258] = (2 0 1)  
