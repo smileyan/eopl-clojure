@@ -70,4 +70,35 @@
 ;     | (r . [q]) n = qN + r, 0 ≤ r < N
 
 ; N = 16
-; [33] = (1 2)     [258] = (2 0 1)  
+; [33] = (1 2)     [258] = (2 0 1)
+
+; 2.2.1 The Environment Interface
+; (empty-env)             = [∅]
+; (apply-env [f] var)     = f(var)
+; (extend-env var v [f])  = [g],
+;                         where g(var1) = v if var1 = var
+;                                              | f(var1) otherwise
+
+; empty-env and extend-env are the constructors
+; apply-env is the only observer
+
+; 2.2.2 Data Structure Representation
+
+; Env-exp ::= (empty-env)
+;         ::= (extend-env Identifier Scheme-value Env-exp)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Env = (empty-env) | (extend-env Var SchemeVal Env)
+; Var = Sym
+
+; empty-env : () -> Env
+(defn empty-env []
+  (list 'empty-env))
+
+
+; extend-env : Var * SchemeVal * Env -> Env
+(defn extend-env [var val env]
+  (list 'extend-env var val env))
+
+; ∀x∈S: x~x 
