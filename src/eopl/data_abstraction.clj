@@ -1,12 +1,17 @@
+(ns eopl.data-abstraction
+  (:require [eopl.common :refer :all]))
+
 ; (zero) = [0]
 ; (is-zero? [0]) = #t when n = 0
 ;                  #f when n ≠ 0
 ; (successor [n]) = [n + 1] (n ≥ 0)
 ; (predecessor [n + 1]) = [n] (n ≥ 0)
 
-; (plus [x] [y]) = [x + y] 
+; (plus [x] [y]) = [x + y]
+(declare successor)
+(declare predecessor)
 (defn plus [x y]
-  (if (is-zero? x)
+  (if (zero? x)
     y
     (successor (plus (predecessor x) y))))
 
@@ -22,7 +27,7 @@
 ;   (empty? n))
   (= n 0))
 
-(def successor [n]
+(defn successor [n]
 ;   (cons true n))
   (+ n 1))
 
@@ -101,4 +106,23 @@
 (defn extend-env [var val env]
   (list 'extend-env var val env))
 
+; apply-env : Env * Var -> SchemeVal
+(defn apply-env [env search-var]
+  (cond
+    (= (car env) 'empty-env) (report-no-binding-found search-var)
+    (= (car env) 'extend-env) 
+      (let [saved-var (cadr env)
+            saved-val (caddr env)
+            saved-env (cadddr env)]
+        (if (= search-var saved-var)
+          saved-val
+          (apply-env saved-env search-var)))
+    :else (report-invalid-env env)))
+
 ; ∀x∈S: x~x 
+; ∀x ∈ A, f(x) = x
+; f: A -> A
+;    x -> x
+; (lambda x: x)
+; (f a)
+; ((lambda x: x) a)
