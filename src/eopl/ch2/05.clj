@@ -15,7 +15,7 @@
         (report-invalid-env initial-env)
       :else
         (let [saved-var (caar env)
-              saved-val (cdar env)
+              saved-val (cadar env)
               saved-env (cdr env)]
           (if (= search-var saved-var)
             saved-val

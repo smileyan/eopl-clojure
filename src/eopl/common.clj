@@ -10,6 +10,9 @@
   (car (car l)))
 
 (defn cdar [l]
+  (cdr (car l)))
+
+(defn cadar [l]
   (car (cdr (car l))))
 
 (defn cadr [l]
