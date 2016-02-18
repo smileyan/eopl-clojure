@@ -126,3 +126,24 @@
 ; (lambda x: x)
 ; (f a)
 ; ((lambda x: x) a)
+
+; 2.2.3 Procedural Representation
+
+; Env = Var -> SchemeVal
+
+; empty-env : () -> Env
+
+(defn empty-env-pr []
+  (fn [search-var]
+    (report-no-binding-found search-var)))
+
+; extend-env : Var * SchemeVal * Env -> search-var
+(defn extend-env-pr [saved-var saved-val saved-env]
+  (fn [search-var]
+    (if (= search-var saved-var)
+      saved-var
+      (apply-env saved-env search-var))))
+
+; apply-env : Env * Var -> SchemeVal
+(defn apply-env-pr [env search-var]
+  (env search-var))
