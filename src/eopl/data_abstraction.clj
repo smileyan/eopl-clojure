@@ -147,3 +147,9 @@
 ; apply-env : Env * Var -> SchemeVal
 (defn apply-env-pr [env search-var]
   (env search-var))
+
+; 2.3 Interfaces for Recursive Data Types
+
+; Lc-exp::=Identifier
+;       ::=(lambda (Identifier) Lc-exp)
+;       ::=(Lc-exp Lc-exp)
