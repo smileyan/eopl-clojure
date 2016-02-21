@@ -153,3 +153,32 @@
 ; Lc-exp::=Identifier
 ;       ::=(lambda (Identifier) Lc-exp)
 ;       ::=(Lc-exp Lc-exp)
+
+; constructors
+; var-exp     :  Var -> Lc-exp
+; lambda-exp  :  Var * Lc-exp -> Lc-exp
+; app-exp     :  Lc-exp * Lc-exp -> Lc-exp
+
+; predicates
+; var-exp?    :  Lc-exp -> boolean
+; lambda-exp? :  Lc-exp -> boolean
+; app-exp?    :  Lc-exp -> boolean
+
+; extractors
+; var-exp->var           : Lc-exp -> Var
+; lambda-exp->bound-var  : Lc-exp -> Var
+; lambda-exp->body       : Lc-exp -> Lc-exp
+; app-exp->rator         : Lc-exp -> Lc-exp
+; app-exp->rand          : Lc-exp -> Lc-exp
+
+(defn occurs-free? [search-var exp]
+  (cond
+    (var-exp? exp) (= search-var (var-exp->var exp))
+    (lambda-exp? exp)
+      (and
+        (not= search-var (lambda-exp->bound-var exp))
+        (occurs-free? search-var (lambda-exp->body exp)))
+    :else
+      (or
+        (occurs-free? search-var (app-exp->rator exp))
+        (occurs-free? search-var (app-exp->rand exp)))))
