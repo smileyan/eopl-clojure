@@ -24,6 +24,9 @@
 (defn caddr [l]
   (first (rest (rest l))))
 
+(defn caadr [l]
+  (first(first (rest l))))
+
 (defn cadddr [l]
   (first (rest (rest (rest l)))))
 

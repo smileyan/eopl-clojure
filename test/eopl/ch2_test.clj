@@ -11,6 +11,9 @@
             [eopl.ch2.11 :refer :all]
             [eopl.ch2.12 :refer :all]
             [eopl.ch2.13 :refer :all]
+            [eopl.ch2.14 :refer :all]
+            [eopl.ch2.15 :refer :all]
+            [eopl.ch2.18 :refer :all]
   ))
 
 

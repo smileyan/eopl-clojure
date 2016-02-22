@@ -3,6 +3,6 @@
             [eopl.data-abstraction :refer :all]
             [eopl.ch2.13]))
 
-(defn has-binding? [env search-var]
-  ((cadr env) search-var))
+; (defn has-binding? [env search-var]
+;   ((cadr env) search-var))
 

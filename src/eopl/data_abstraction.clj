@@ -171,14 +171,22 @@
 ; app-exp->rator         : Lc-exp -> Lc-exp
 ; app-exp->rand          : Lc-exp -> Lc-exp
 
-(defn occurs-free? [search-var exp]
-  (cond
-    (var-exp? exp) (= search-var (var-exp->var exp))
-    (lambda-exp? exp)
-      (and
-        (not= search-var (lambda-exp->bound-var exp))
-        (occurs-free? search-var (lambda-exp->body exp)))
-    :else
-      (or
-        (occurs-free? search-var (app-exp->rator exp))
-        (occurs-free? search-var (app-exp->rand exp)))))
+; (defn occurs-free? [search-var exp]
+;   (cond
+;     (var-exp? exp) (= search-var (var-exp->var exp))
+;     (lambda-exp? exp)
+;       (and
+;         (not= search-var (lambda-exp->bound-var exp))
+;         (occurs-free? search-var (lambda-exp->body exp)))
+;     :else
+;       (or
+;         (occurs-free? search-var (app-exp->rator exp))
+;         (occurs-free? search-var (app-exp->rand exp)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                Designing an interface for a recursive data type                                    ;
+;                                                                                                    ; 
+; 1. Include one constructor for each kind of data in the data type.                                 ;
+; 2. Include one predicate for each kind of data in the data type.                                   ;
+; 3. Include one extractor for each piece of data passed to a constructor of the data type.          ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
