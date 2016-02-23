@@ -190,3 +190,68 @@
 ; 2. Include one predicate for each kind of data in the data type.                                   ;
 ; 3. Include one extractor for each piece of data passed to a constructor of the data type.          ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; 2.4 A Tool for Defining Recursive Data Types
+
+; (define-datatype lc-exp lc-exp?
+;   (var-exp
+;     (var identifier?))
+;   (lambda-exp
+;     (bound-var identifier?)
+;     (body lc-exp?))
+;   (app-exp
+;     (rator lc-exp?)
+;     (rand lc-exp?)))
+; variable expression, variable, bound variable, application expression, operator, and operand.
+
+; occurs-free? : Sym * LcExp -> Bool
+; (define occurs-freee?
+;   (lambda search-var exp)
+;     (cases lc-exp exp
+;       (var-exp (var) (eqv? var search-var))
+;       (lambda-exp (bound-var body)
+;         (and
+;           (not (eqv? search-var bound-var))
+;           (occurs-free? search-var body)))
+;       (app-exp (rator rand)
+;         (or
+;           (occurs-free? search-var rator)
+;           (occurs-free? search-var rand)))))
+
+; (if (app-exp? exp)
+;   (let ((rator (app-exp->rator exp))
+;         (rand (app-exp->rand exp)))
+;     (or
+;       (occurs-free? search-var rator)
+;       (occurs-free? search-var rand)))
+; ...)
+
+; (define-datatype type-name type-predicate-name
+;   {(variant-name {(field-name predicate)}*)}+)
+
+; S-list ::= ({S-exp}*)
+; S-exp ::= Symbol | S-list
+; (define-datatype s-list s-list?
+;   (empty-s-list)
+;   (non-empty-s-list
+;     (first s-exp?)
+;     (rest s-list?)))
+
+; (define-datatype s-exp s-exp?
+;   (symbol-s-exp
+;     (sym symbol?))
+;   (s-list-s-exp
+;     (slst s-list?)))
+
+; (define-datatype s-list s-list?
+;   (an-s-list
+;     (sexps (list-of s-exp?))))
+
+; (define list-of
+;   (lambda (pred)
+;     (lambda (val)
+;       (or (null? val)
+;         (and (pair? val)
+;           (pred (car val))
+;           ((list-of pred) (cdr val)))))))
+

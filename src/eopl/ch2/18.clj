@@ -15,7 +15,7 @@
   (cadr s))
 
 (defn r-s [s]
-  (caddr))
+  (caddr s))
 
 (defn move-to-left [s]
   (let [n (current-element s)
@@ -35,16 +35,16 @@
          r1 (cdr r)]
       (make->sequence n1 l1 r1))))
 
-(defn insert-to-left [n s]
+(defn insert-to-left [m s]
   (let [n (current-element s)
-        l (cons n (l-s s))
+        l (cons m (l-s s))
         r (r-s s)]
     (make->sequence n l r)))
 
-(defn insert-to-right [n s]
+(defn insert-to-right [m s]
   (let [n (current-element s)
         l (l-s s)
-        r (cons n (r-s s))]
+        r (cons m (r-s s))]
     (make->sequence n l r)))
 
 (defn at-left-end? [s] 
