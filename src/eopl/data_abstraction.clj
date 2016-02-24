@@ -255,3 +255,6 @@
 ;           (pred (car val))
 ;           ((list-of pred) (cdr val)))))))
 
+; (cases type-name expression
+;   {(variant-name ({field-name}*) consequent)}*
+;   (else default))
