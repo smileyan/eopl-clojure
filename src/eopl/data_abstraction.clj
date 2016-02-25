@@ -258,3 +258,36 @@
 ; (cases type-name expression
 ;   {(variant-name ({field-name}*) consequent)}*
 ;   (else default))
+
+; 2.5 Abstract Syntax and Its Representation
+; Lc-exp ::= Identifier
+;            var-exp (var)
+;        ::= proc Identifier => Lc-exp
+;            lambda-exp (bound-var body)
+;        ::= Lc-exp(Lc-exp)
+;            app-exp (rator rand)
+
+; parse-expression : SchemeVal -> LcExp
+; (defn parse-expression [datum]
+;   (cond
+;     (symbol? datum) (var-exp datum)
+;     (pair? datum)
+;       (if (= (car datum) 'lambda)
+;         (lambda-exp
+;           (car (cadr datum))
+;           (parse-exp (caddr datum)))
+;         (app-exp
+;           (parse-expression (car datum))
+;           (parse-expression (cadr datum))))
+;      :else (report-invalid-concrete-syntx datum)))
+
+; ; unparse-lc-exp : LcExp -> SchemeVal
+; (defn unparse-lc-exp [exp]
+;   (cases lc-exp exp
+;     (var-exp (var) var)
+;     (lambda-exp (bound-var body)
+;       (list 'lambda (list bound-var)
+;         (unparse-lc-exp body)))
+;     (app-exp (rator rand)
+;       (list
+;         (unparse-lc-exp rator) (unparse-lc-exp rand)))))
