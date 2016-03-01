@@ -46,3 +46,41 @@ expval->num  : ExpVal -> Int
 expval->bool : ExpVal -> Bool
 
 3.2.3 Environments
+
+An enviroment is a function whose domain is a finite set of variables and whose range is the denoted values.
+
+ ρ ranges over enviroments.
+ [] denotes the empty enviroment.
+ [var = val]ρ denotes (extend-env var val ρ).
+ [var1 = val1, var2 = val2]ρ abbreviates [var1 = val1]([var2 = val2]ρ), etc.
+ [var1 = val1, var2 = val2,...] denotes the enviroment in which the values of var1 is val1,etc.
+ 
+ [x=3]
+  [y=7]
+   [u=5]ρ
+ to abbreviates
+ (extend-env 'x 3
+   (extend-env 'y 7
+     (extend-env 'u 5 ρ)))
+
+3.2.4 Specifying the Behavior of Expressions
+
+  constructors:
+  const-exp   : Int -> Exp
+  zero?-exp   : Exp -> Exp
+  if-exp      : Exp*Exp*Exp -> Exp
+  diff-exp    : Exp*Exp -> Exp
+  var-exp     : Var -> Exp
+  let-exp     : Var*Exp*Exp -> Exp
+  
+  observer:
+  value-of    : Exp*Env -> ExpVal
+
+(value-of (const-exp n) ρ) = (num-val n)
+(value-of (var-exp var) ρ) = (apply-env ρ var)
+(value-of (diff-exp exp1 exp2) ρ)
+= (num-val
+    (-
+      (expval->num (value-of exp1 ρ))
+      (expval->num (value-of exp2 ρ))))
+      
