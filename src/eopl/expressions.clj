@@ -83,4 +83,39 @@ An enviroment is a function whose domain is a finite set of variables and whose 
     (-
       (expval->num (value-of exp1 ρ))
       (expval->num (value-of exp2 ρ))))
-      
+
+3.2.5 Specifying the Behavior of Programs
+
+(value-of-program exp)
+= (value-of exp [i=⌈1⌉,v=⌈5⌉,x=⌈10⌉])
+
+3.2.6 Specifying Conditionals
+
+        (value-of exp1 ρ) = val1
+__________________________________________________
+(value-of (zero?-exp exp1) ρ)
+  (bool-val #t)    if (expval->num  val1) = 0
+= (bool-val #f)    if (expval->num  val1) ≠ 0
+
+        (value-of exp1 ρ) = val1
+__________________________________________________
+(value-of (if-exp exp1 exp2 exp3) ρ)
+  (value-of exp2 ρ)    if (expval->bool  val1) = #t
+= (value-of exp3 ρ)    if (expval->bool  val1) = #f
+
+For an if-exp, the equational specification is
+(value-of (if-exp exp1 exp2 exp3) ρ)
+= (if (expval->bool (value-of exp1 ρ))
+    (value-of exp2 ρ)
+    (value-of exp3 ρ))
+
+3.2.7 Specifying let
+
+let x = 5
+in -(x,3)
+
+let z = 5
+in let x = 3
+   in let y = -(x,1)      % here x = 3
+      in let x = 4
+         in -(z, -(x,y))  % here x = 4
