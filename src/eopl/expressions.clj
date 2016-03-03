@@ -119,3 +119,38 @@ in let x = 3
    in let y = -(x,1)      % here x = 3
       in let x = 4
          in -(z, -(x,y))  % here x = 4
+
+        (value-of exp1 ρ) = val1
+__________________________________________________
+(value-of (let-exp var exp1 body) ρ)
+  = (value-of body [var = val1]ρ)
+
+(value-of (let-exp var exp1 body) ρ)
+= (value-of body [var=(value-of exp1 ρ)]ρ)
+
+3.2.8 Implementation the Specification of LET
+
+Syntax data types for the LET language
+
+(define-datatype program program?
+  (a-program
+    (exp1 expression?)))
+
+(define-datatype expression expression?
+  (const-exp
+    (num number?))
+  (diff-exp
+    (exp1 expression?)
+    (exp2 expression?))
+  (zero?-exp
+    (exp1 expression?))
+  (if-exp
+    (exp1 expression?)
+    (exp2 expression?)
+    (exp3 expression?))
+  (var-exp
+    (var identifier?))
+  (let-exp
+    (var identifier?)
+    (exp1 expression?)
+    (body expression?)))
