@@ -154,3 +154,31 @@ Syntax data types for the LET language
     (var identifier?)
     (exp1 expression?)
     (body expression?)))
+
+; init-env : () -> Env
+; usage: (init-env) = [i=⌈1⌉,v=⌈5⌉,x=⌈10⌉]
+(defn init-env []
+  (extend-env
+    'i (num-val 1)
+    (extend-env
+      'v (num-val 5)
+      (extend-env
+        'x (num-val 10)
+        (empty-env)))))
+
+(define-datatype expval expval?
+  (num-val
+    (num number?))
+  (bool-val))
+
+; expval->num : ExpVal -> Int
+(defn expval->num [val]
+  (cases expval val
+    (num-val (num) num)
+    (else (report-expval-extractor-error 'num val))))
+
+; expval->bool : ExpVal -> Bool
+(defn expval->bool [val]
+  (cases expval val
+    (bool-val (bool) bool)
+    (else (report-expval-extractor-error 'bool val))))
