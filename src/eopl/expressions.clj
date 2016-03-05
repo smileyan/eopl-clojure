@@ -182,3 +182,13 @@ Syntax data types for the LET language
   (cases expval val
     (bool-val (bool) bool)
     (else (report-expval-extractor-error 'bool val))))
+
+; run : string -> ExpVal
+(defn run [string]
+  (value-of-program (scan&parse string)))
+
+; value-of-program: Program -> ExpVal
+(defn value-of-program [pgm]
+  (cases program pgm
+    (a-program (exp1)
+      (value-of exp1 (init-env)))))
