@@ -192,3 +192,21 @@ Syntax data types for the LET language
   (cases program pgm
     (a-program (exp1)
       (value-of exp1 (init-env)))))
+
+; value-of : Exp * Env -> ExpVal
+(defn value-of [exp env]
+  (cases expression env
+    ; (value-of (const-exp n) ρ) = n
+    (const-exp (num) (number-val num))
+    ; (value-of (var-exp var) ρ) = (apply-env ρ env)
+    (var-exp (var) (apply-env env var))
+    ; (value-of (diff-exp exp1 exp2) ρ) =
+    ;   ⌈(- ⌊(value-of exp1 ρ)⌋ ⌊(value-of exp2 ρ)⌋)⌉
+    (diff-exp (exp1 exp2)
+      (let [val1 (value-of exp1 env)
+            val2 (value-of exp2 env)]
+        let [num1 (expval->num val1)
+             num2 (expval->num val2)]
+          (num-val
+            (- num1 num2))))
+    ))
