@@ -209,4 +209,33 @@ Syntax data types for the LET language
              num2 (expval->num val2)]
           (num-val
             (- num1 num2))))
+    ;          (value-of exp1 ρ) = val1
+    ; -----------------------------------------
+    ; (value-of (zero?-exp exp1) ρ)
+    ; =(bool-val #t) if (expval->num val1) = 0
+    ;  (bool-val #f) if (expval->num val1) ≠ 0
+    (zero?-exp (exp1)
+      (let [val1 (value-of exp1 env)]
+        let [num1 (expval->num val1)]
+          (if (zero? num1)
+            (bool-val #t)
+            (bool-val #f))))
+    ;          (value-of exp1 ρ) = val1
+    ; -----------------------------------------
+    ; (value-of (if-exp exp1 exp2 exp3) ρ)
+    ; =(value-of exp2 ρ) if (expval->bool val1) = #t
+    ; =(value-of exp3 ρ) if (expval->bool val1) = #f
+    (if-exp (exp1 exp2 exp3)
+      (let [val1 (value-of exp1 env)]
+        (if (expval->bool val1)
+          (value-of exp2 env)
+          (value-of exp3 env))))
+    ;          (value-of exp1 ρ) = val1
+    ; -----------------------------------------
+    ; (value-of (let-exp var exp1 body) ρ)
+    ; = (value-of body [var = var1] ρ)
+    (let-exp (var exp1 body)
+      (let [val1 (value-of exp1 env)]
+        (value-of body
+          (extend-env var val1 env))))
     ))
