@@ -239,3 +239,19 @@ Syntax data types for the LET language
         (value-of body
           (extend-env var val1 env))))
     ))
+
+; 3.3 PROCess： A Language with Procedures
+
+Expval = Int + Bool + Proc 
+DenVal = Int + Bool + Proc
+
+Expression ::= proc (Identifier) Expression
+               proc-exp (var body)
+Expression ::= (Expression Expression)
+               call-exp (rator rand)
+
+let f = proc(x) -(x,11)
+in (f (f 77))
+
+(proc (f) (f (f 77))
+ proc (x) -(x,11))

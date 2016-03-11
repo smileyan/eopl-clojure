@@ -1,6 +1,10 @@
 (ns eopl.inductive-sets-of-data
   (:require [eopl.common :refer :all]))
 
+; Definition 1.1.1 A natural number n is ni S if and only if 
+; 1. n = 0, or
+; 2. n - 3 3.
+
 ; in-S? : N -> Bool
 ; usage: (in-S? n) = #t if n is in S, #f otherwise
 (defn in-S? [n]
