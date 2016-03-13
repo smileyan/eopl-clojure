@@ -48,4 +48,17 @@
 ;                   n is in Int    l is in List-of-Int
 ;                   ----------------------------------
 ;                         (n . l) is in List-of-Int
-                        
+
+; 1.1.2 Definition Sets Using Grammars
+
+         List-of-Int ::= ()
+         List-of-Int ::= (Int . List-of-Int)
+ 
+ 1. Nonterminal Symbols
+ 2. Terminal Symbols
+ 3. Productions
+
+         List-of-Int ::= ()
+                     ::= (Int . List-of-Int)
+
+         List-of-Int ::= () | (Int . List-of-Int)
