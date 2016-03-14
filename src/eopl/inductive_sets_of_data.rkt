@@ -62,3 +62,19 @@
                      ::= (Int . List-of-Int)
 
          List-of-Int ::= () | (Int . List-of-Int)
+
+Definition 1.1.6 (s-list, s-exp)
+                       S-list ::= ({S-exp}*)
+                       S-exp  ::= Symbol | S-list
+
+Definition 1.1.7 (binary tree)
+                       Bintree ::= Int | (Symbol Bintree Bintree)
+
+Definition 1.1.8 (lambda expression)
+                       LcExp ::= Identifier
+                             ::= (lambda (Identifier) LcExp)
+                             ::= (LcExp LcExp)
+      where an identifier is any symbol other than lambda.
+
+
+1.1.3 Induction
