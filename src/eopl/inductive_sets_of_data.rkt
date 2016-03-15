@@ -78,3 +78,5 @@ Definition 1.1.8 (lambda expression)
 
 
 1.1.3 Induction
+      1. to prove theorems about members of the set and 
+      2. to write programs that manipulate them. 
