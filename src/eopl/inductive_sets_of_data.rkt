@@ -146,3 +146,29 @@ usage: (list-length l) = the length of l
       = (nth-element '(c d e) 1)
       = (nth-element '(d e) 0)
       = d
+
+1.2.3 remove-first
+
+      > (remove-first 'a '(a b c))
+      (b c)
+      > (remove-first 'b '(e f g))
+      (e f g)
+      > (remove-first 'a4 '(c1 a4 c1 a4))
+      (c1 c1 a4)
+      > (remove-first 'x '())
+      ()
+      
+               List-of-Symbol ::= () | (Symbol . List-of-Symbol)
+      
+      remove-first : Sym * Listof(Sym) -> Listof(Sym)
+      usage:  (remove-first s los) returns a list with 
+              the same elements arranged in the same
+              order as los, except that the first
+              occurrence of the symbol s is removed.
+      (define remove-first
+        (lambda (s los)
+          (if (null? los)
+            '()
+            (if (eqv? (car los) s)
+              (cdr los))
+              (cons (car los) (remove-first s (cdr los))))))
