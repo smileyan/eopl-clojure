@@ -172,3 +172,39 @@ usage: (list-length l) = the length of l
             (if (eqv? (car los) s)
               (cdr los))
               (cons (car los) (remove-first s (cdr los))))))
+
+1.2.4  occurs-free?
+
+        > (occurs-free? 'x 'x)
+        #t
+        > (occurs-free? 'x 'y)
+        #f
+        > (occurs-free? 'x '(lambda (x) (x y)))
+        #f
+        > (occurs-free? 'x '(lambda (y) (x y)))
+        #t
+        > (occurs-free? 'x '((lambda (x) x) (x y)))
+        #t
+        > (occurs-free? 'x '(lambda (y) (lambda (z) (x (y z)))))
+        #t
+                   LcExp ::= Identifier
+                         ::= (lambda (Identifier) LcExp)
+                         ::= (LcExp LcExp)
+        
+        occurs-free? : Sym * LcExp -> Bool
+        usage:      returns #t if the symbol var occurs free
+                    in exp, otherwise returns #f.
+        (define occurs-free?
+          (lambda (var exp)
+            (cond
+              ((symbol? exp) (eqv? var exp))
+              ((eqv? (car exp) 'lambda)
+               (and
+                 (not (eqv? var (car (cadr exp))))
+                 (occurs-free? var (caddr exp))))
+              (else
+                (or
+                  (occurs-free? var (car exp))
+                  (occurs-free? var (cadr exp)))))))
+                         
+        
