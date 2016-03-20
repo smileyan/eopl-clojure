@@ -219,3 +219,13 @@
         S-list ::= ()
                ::= (S-exp . S-list)
         S-exp  ::= Symbol | S-list
+        
+        subst : Sym * Sym * S-list -> S-list
+        (define subst
+          (lambda (new old slist)
+            ...))
+        
+        subst-in-s-exp : Sym * Sym * S-exp -> S-exp
+        (define subst-in-s-exp
+          (lambda (new old sexp)
+            ...))
