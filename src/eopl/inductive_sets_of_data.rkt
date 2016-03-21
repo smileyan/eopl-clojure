@@ -1,8 +1,8 @@
+
 #lang eopl
 
 1.1 Recursively Specified Data
-
-  1.1.1 Inductive Specification
+   1.1.1 Inductive Specification
 
     ; top-down
     ; Definition 1.1.1 A natural number n is in S iff
@@ -49,7 +49,7 @@
     ;                   ----------------------------------
     ;                         (n . l) is in List-of-Int
 
-  1.1.2 Definition Sets Using Grammars
+   1.1.2 Definition Sets Using Grammars
 
          List-of-Int ::= ()
          List-of-Int ::= (Int . List-of-Int)
@@ -77,7 +77,7 @@
       where an identifier is any symbol other than lambda.
 
 
-  1.1.3 Induction
+   1.1.3 Induction
       1. to prove theorems about members of the set and 
       2. to write programs that manipulate them.
 
@@ -92,8 +92,8 @@
         2. If IH is true on the substructures of s, then it is true on s itself.
     ___________________________________________________________________________________
 
-1.2 Deriving Recursive Programs
 
+1.2 Deriving Recursive Programs
     1.2.0 The Smaller-Subproblem Principle
      _____________________________________________________________________________
                      The Smaller-Subproblem Principle
@@ -223,9 +223,32 @@
         subst : Sym * Sym * S-list -> S-list
         (define subst
           (lambda (new old slist)
-            ...))
+            (if (null? slist)
+              '()
+              (cons
+                (subst-in-s-exp new old (car slist))
+                (subst new old (cdr slist))))))
         
         subst-in-s-exp : Sym * Sym * S-exp -> S-exp
         (define subst-in-s-exp
           (lambda (new old sexp)
-            ...))
+            (if (symbol? sexp)
+              (if (eqv? sexp old) new sexp)
+              (subst new old sexp))))
+        
+        _____________________________________________________________________________
+                               Follow the Grammar!
+         When defining a procedure that operates on inductively defined data, the
+         structure of the program should be patterned after the structure of the data.
+        _____________________________________________________________________________
+        
+        Write one procedure for each nonterminal in the grammar. The procedure
+        will be responsible for handling the data corresponding to that nontermi-
+        nal, and nothing else.
+        
+        In each procedure, write one alternative for each production correspond-
+        ing to that nonterminal. You may need additional case structure, but this
+        will get you started. For each nonterminal that appears in the right-hand
+        side, write a recursive call to the procedure for that nonterminal.
+
+1.3 Auxiliary Procedures and Context Arguments
