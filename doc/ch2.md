@@ -75,6 +75,18 @@
         - (a)
         > (list)
         - ()
+        
+        Exercise 2.2.1.
+            a. 1.2*(2-1/3)+ -8.7
+                > (+ (* 1.2 (- 2 (/ 1 3))) -8.7)
+            b. (2/3 + 4/9) / (5/11 - 4/3)
+                > (/ (+ (/ 2 3) (/ 4 9)) (- (/ 5 11) (/ 4 3)))
+        
+        Exercise 2.2.2.
+        
+        Exercise 2.2.3.
+            > (cons 'car 'cdr)
+            - (car . cdr)
     Section 2.3. Evaluating Scheme Expressions
         A Scheme evaluator is free to evaluate the expressions in any order.
         > ((car (list + - * /)) 2 3)
@@ -145,3 +157,60 @@
             (list (double-any + 13)
                   (double-any cons 'a)))
         - (26 (a . a))
+        
+        occur free or free variable of the lambda expression 
+        > (let ([x 'a])
+            (let ([f (lambda (y) (list x y))])
+              (f 'b)))
+        - (a b)
+        
+        > (let ([f (let ([x 'sam])
+                     (lambda (y z) (list x y z)))])
+            (f '1 'am))
+        - (sam i am)
+        
+        > (let ([f (let ([x 'sam])
+                     (lambda (y z) (list x y z)))])
+            (let ([x 'not-sam])
+              (f '1 'am)))
+        - (sam i am)
+        
+        (let ([x 'a])) (cons x x) = ((lambda (x) (cons x x)) 'a)
+        
+        (let ((var expr) ...) body1 body2 ...) is equivalent to ((lambda (var ...) body1 body2 ...)
+                                                                  expr ...)
+        
+        > (let ([f (lambda x x)])
+            (f 1 2 3 4))
+        - (1 2 3 4)
+        
+        > (let ([f (lambda x x)])
+            (f))
+        - ()
+        
+        > (let ([g (lambda (x . y) (list x y))])
+            (g 1 2 3 4))
+        - (1 (2 3 4))
+        
+        > (let ([h (lambda (x y . z) (list x y z))])
+            (h 'a 'b 'c 'd))
+        - (a b (c d))
+
+    Section 2.6. Top-Level Definitions
+    
+        > (define double-any
+            (lambda (f x)
+              (f x x)))
+        > (double-any + 10)
+        - 20
+        > (double-any cons 'a)
+        - (a . a)
+        
+        > (define sandwich "peanut-butter-and-jelly") 
+        > sandwich 
+        - "peanut-butter-and-jelly"
+        
+        > (define xyz '(x y z))
+        > (let ([xyz '(z y x)])
+            xyz)
+        - (z y x)
