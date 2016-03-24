@@ -195,6 +195,26 @@
         > (let ([h (lambda (x y . z) (list x y z))])
             (h 'a 'b 'c 'd))
         - (a b (c d))
+        
+        Exercise 2.5.1
+            a.
+              (let ([f (lambda (x) x)])
+                (f 'a))
+              - 'a
+            b.
+              (let ([f (lambda x x)])
+                (f 'a))
+              - '(a)
+            c.
+              (let ([f (lambda (x . y) x)])
+                (f 'a))
+              - 'a
+            d.
+              (let ([f (lambda (x . y) y)])
+                (f 'a))
+              - '()
+        Exercise 2.5.3
+            (let ([list (lambda x x)]))
 
     Section 2.6. Top-Level Definitions
     
@@ -214,3 +234,79 @@
         > (let ([xyz '(z y x)])
             xyz)
         - (z y x)
+        
+        > (define list (lambda x x))
+        
+        > (define cadr
+            (lambda (x)
+              (car (cdr x))))
+        > (define cddr
+            (lambda (x)
+              (cdr (cdr x))))
+        > (cadr '(a b c))
+        - 'b
+        > (cddr '(a b c))
+        - '(c)
+        
+        a proper list of variables
+        (define var0
+          (lambda (var1 ... varn)
+            e1 e2 ...))
+        (define (var0 var1 ... varn)
+          e1 e2 ...)
+        
+        a single variable
+        (define var0
+          (lambda varr
+            e1 e2 ...))
+        (define (var0 . varr)
+          e1 e2 ...)
+        
+        am improper list of variables
+        (define var0
+          (lambda (var1 ... varn . varr)
+            e1 e2 ...))
+        (define (var0 var1 ... varn . varr)
+          e1 e2 ...)
+        
+        (define (cadr x)
+          (car (cdr x)))
+        (define (list . x) x)
+        
+        (define doubler
+          (lambda (f)
+            (lambda (x) (f x x))))
+        > (define double (doubler +))
+        > (double 13/2)
+        - 13
+        
+        > (define double-cons (doubler cons))
+        - (double-cons 'a)
+        - (a . a)
+        
+        > (define double-any
+            (lambda (f x)
+              ((doubler f) x)))
+        > (i-am-not-defined 3)
+         i-am-not-defined: undefined;
+          cannot reference undefined identifier
+        > (define proc1
+            (lambda (x y)
+              (proc2 y x)))
+        > (define proc2 cons)
+        > (proc1 'a 'b)
+        - '(b . a)
+        
+        Exercise 2.6.1
+        Exercise 2.6.2
+        > (define compose
+            (lambda (p1 p2 var)
+              (p1 (p2 var))))
+        > (define cadr
+            (lambda (l)
+              (compose car cdr l)))
+        > (define cddr
+            (lambda (l)
+              (compose cdr cdr l)))
+
+    Section 2.7. Conditional Expressions
