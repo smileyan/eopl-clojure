@@ -310,3 +310,82 @@
               (compose cdr cdr l)))
 
     Section 2.7. Conditional Expressions
+        > (define abs
+            (lambda (x)
+              (if (< x 0)
+                (- 0 x)
+                x)))
+        > (abs 99)
+        - 99
+        > (abs -99)
+        - 99
+        
+        (if test consequent alternative)
+        > (define abs
+            (lambda (n)
+              ((if (>= 0 n) + -)
+               0
+               n)))
+        > (define reciprocal
+            (lambda (n)
+              (if (= 0 n)
+                "oops"
+                (/ 1 n))))
+        > (define reciprocal
+            (lambda (n)
+              (and (not (= 0 n))
+                   (/ 1 n))))
+        > (reciprocal 3)
+        - 1/3
+        > (reciprocal 0.5)
+        - 2.0
+        > (reciprocal 0)
+        - #f
+        The procedures =, <, >, <=, and >= are called predicates. 
+        > (null? '())
+        - #t
+        > (null? 'abc)
+        - #f
+        > (null? '(x y z))
+        - #f
+        > (null? (cdddr '(x y z)))
+        - #t
+
+        > (define lisp-cdr
+            (lambda (x)
+              (if (null? x)
+                  '()
+                  (cdr x)))) 
+
+        > (lisp-cdr '(a b c))
+        - (b c)
+        > (lisp-cdr '(c))
+        - ()
+        > (lisp-cdr '())
+        - ()
+
+        > (eqv? 'a 'a)
+        - #t
+        > (eqv? 'a 'b)
+        - #f
+        > (eqv? #f #f)
+        - #t
+        > (eqv? #t #t)
+        - #t
+        > (eqv? #f #t)
+        - #f
+        > (eqv? 3 3)
+        - #t
+        > (eqv? 3 2)
+        - #f
+        > (let ([x "Hi Mom!"])
+            (eqv? x x))
+        - #t
+        > (let ([x (cons 'a 'b)])
+            (eqv? x x))
+        - #t
+        > (eqv? (cons 'a 'b) (cons 'a 'b))
+        - #f
+        
+        type predicates: pair?, symbol?, number?, and string?
+        
