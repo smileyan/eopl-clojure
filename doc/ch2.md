@@ -388,4 +388,90 @@
         - #f
         
         type predicates: pair?, symbol?, number?, and string?
-        
+        > (pair? '(a . c))
+        - #t
+        > (pair? '(a b c))
+        - #t
+        > (pair? '())
+        - #f
+        > (pair? 'abc)
+        - #f
+        > (pair? "Hi Mom!")
+        - #f
+        > (pair? 1234567890)
+        - #f
+        > (define reciprocal
+            (lambda (n)
+              (if (and (number? n) (not (= 0 n)))
+                (/ 1 n)
+                "oops!")))
+        > (reciprocal 2/3)
+        - 3/2
+        > (reciprocal 'a)
+        - "oops!"
+        > (define reciprocal
+            (lambda (n)
+              (if (and (number? n) (not (= n 0)))
+                (/ 1 n)
+                (assertion-violation 'reciprocal
+                  "improper argument"
+                  n))))
+        > (reciprocal .25)
+        - 4.0
+        > (reciprocal 0)
+        - exception in reciprocal: improper argument 0
+        > (reciprocal 'a)
+        - exception in reciprocal: improper argument a
+        > (define sign
+            (lambda (n)
+              (if (< n 0)
+                -1
+                (if (= n 0)
+                  0
+                  +1))))
+        > (sign -88.3)
+        - -1
+        > (sign 0)
+        - 0
+        > (sign 333333333333)
+        - 1
+        > (* (sign -88.3) (abs -88.3))
+        - -88.3
+        > (define sign
+            (lambda (n)
+              (cond
+                [(< n 0) -1]
+                [(> n 0) 1]
+                [else 0])))
+    Section 2.8. Simple Recursion
+        (define goodbye
+          (lambda ()
+            (goodbye)))
+        (define length
+          (lambda (ls)
+            (if (null? ls)
+              0
+              (+ 1 (length (cdr ls))))))
+        (length '())
+         0
+        (length '(a))
+         1
+        (length '(a b))
+         2
+        (length '(a b c d))
+         |(length (a b c d))
+         | (length (b c d))
+         | |(length (c d))
+         | | (length (d))
+         | | |(length ())
+         | | |0
+         | | 1
+         | |2
+         | 3
+         |4
+        (define list-copy
+          (lambda (ls)
+            (if (null? ls)
+              '()
+              (cons (car ls) 
+                (list-copy (cdr ls))))))
