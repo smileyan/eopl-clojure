@@ -475,3 +475,44 @@
               '()
               (cons (car ls) 
                 (list-copy (cdr ls))))))
+        (define memv
+          (lambda (x ls)
+            (cond
+              [(null? ls) #f]
+              [(eqv? (car ls) x) ls]
+              [else (memv x (cdr ls))])))
+        > (memv 'a '(a b b d))
+        - (a b b d)
+        > (memv 'b '(a b b d))
+        - (b b d)
+        > (memv 'c '(a b b d))
+        - #f
+        > (memv 'd '(a b b d))
+        - (d)
+        > (if (memv 'b '(a b b d))
+              "yes"
+              "no")
+        - "yes"
+        > (define remv
+            (lambda (x ls)
+              (cond
+                [(null? ls) '()]
+                [(eqv? x (car ls)) (memv x (cdr ls))]
+                [else (cons (car ls) (memv x (cdr ls)))])))
+        > (define tree-copy
+            (lambda (tr)
+              (if (pair? tr)
+                (cons (tree-copy (car tr))
+                      (tree-copy (cdr tr)))
+                tr)))
+        > (tree-copy '((a . b) . c))
+        - ((a . b) . c)
+        > (define abs-all
+            (lambda (ls)
+              (if (null? ls)
+                '()
+                (cons (abs (car ls)
+                      (abs-all (cdr ls)))))))
+        > abs-all '(1 -2 3 -4 5 -6))
+        - (1 2 3 4 5 6)
+
