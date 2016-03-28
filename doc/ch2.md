@@ -515,4 +515,140 @@
                       (abs-all (cdr ls)))))))
         > abs-all '(1 -2 3 -4 5 -6))
         - (1 2 3 4 5 6)
+    Section 2.9. Assignment
+        > (define abcde '(a b c d e))
+        > abcde
+         - (a b c d e)
+        > (set! abcde (cdr abcde))
+        > abcde
+         - (b c d e)
+        > (let ([abcde '(a b c d e)])
+            (set! abcde (reverse abcde))
+            abcde)
+         - (e d c b a)
+        > (define quadratic-formula
+            (lambda (a b c)
+              (let ([root1 0] [root2 0] [minusb 0] [radical 0] [divisor 0])
+                (set! minusb (- 0 b))
+                (set! radical (sqrt (- (* b b) (* 4 (* a c)))))
+                (set! divisor (* 2 a))
+                (set! root1 (/ (+ minusb radical) divisor))
+                (set! root2 (/ (- minusb radical) divisor))
+                (cons root1 root2))))
+        > (quadratic-formula 2 -4 -6)
+         - (3 . -1)
+        > (define quadratic-formula
+            (lambda (a b c)
+              (let ([minusb (- 0 b)]
+                    [radical (sqrt (- (* b b) (* 4 (* a c))))]
+                    [divisor (* 2 a)])
+                (let ([root1 (/ (+ minusb radical) divisor)]
+                      [root2 (/ (- minusb radical) divisor)])
+                  (cons root1 root2)))))
+        > (define kons-count 0)
+        > (define kons
+            (lambda (x y)
+              (set! kons-count (+ kons-count 1))
+              (cons x y)))
+        > (define next 0)
+        > (define count
+            (lambda ()
+              (let ([v next])
+                (set! next (+ next 1))
+                v)))
+        > (define count
+            (let ([next 0])
+              (lambda ()
+                (let ([v next])
+                  (set! next (+ next 1))
+                  v))))
+        > (define make-counter
+            (lambda ()
+              (let ([next 0])
+                (lambda ()
+                  (let ([v next])
+                    (set! next (+ next 1))
+                    v)))))
+        > (define count1 (make-counter))
+        > (define count2 (make-counter)) 
+        > (count1)
+         - 0
+        > (count2)
+         - 0
+        > (count1)
+         - 1
+        > (count1)
+         - 2
+        > (count2)
+         - 1
+        > (define shhh #f)
+        > (define tell #f)
+        > (let ([secret 0])
+            (set! shhh
+              (lambda (message)
+                (set! secret message)))
+            (set! tell
+              (lambda ()
+                secret))) 
+
+        > (shhh "sally likes harry")
+        > (tell)
+         - "sally likes harry"
+        > secret
+         - exception: variable secret is not bound
+        > (define lazy
+            (lambda (t)
+              (let ([val #f] [flag #f])
+                (lambda ()
+                  (if (not flag) //the alternative subexpression of an if expression can be omitted
+                    (begin (set! val (t))
+                           (set! flag #t)))
+                  val))))
+        > (define p
+            (lazy (lambda ()
+                    (display "Ouch!")
+                    (newline)
+                    "got me")))
+        > (define make-stack
+            (lambda ()
+              (let ([ls '()])
+                (lambda (message . args)
+                  (cond
+                    [(eqv? message 'empty?) (null? ls)]
+                    [(eqv? message 'push!) (set! ls (cons (car args) ls))]
+                    [(eqv? message 'top) (car ls)]
+                    [(eqv? message 'pop!) (set! ls (cdr ls))]
+                    [else "oops"])))))
+        > (define stack1 (make-stack))
+        > (define stack2 (make-stack))
+        > (list (stack1 'empty?) (stack2 'empty?))
+         - (#t #t) 
+
+        > (stack1 'push! 'a)
+        > (list (stack1 'empty?) (stack2 'empty?))
+         - (#f #t) 
+
+        > (stack1 'push! 'b)
+        > (stack2 'push! 'c)
+        > (stack1 'top)
+         - b
+        > (stack2 'top)
+         - c 
+
+        > (stack1 'pop!)
+        > (stack1 'top)
+         - a
+        > (list (stack1 'empty?) (stack2 'empty?))
+         - (#f #f) 
+
+        > (stack1 'pop!)
+        > (list (stack1 'empty?) (stack2 'empty?))
+         - (#t #f)
+        > (define p (list 1 2 3))
+        > (set-car! (cdr p) 'two)
+        > p
+         - (1 two 3)
+        > (set-cdr! p '())
+        > p
+         - (1)
 
