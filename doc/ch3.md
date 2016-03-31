@@ -93,3 +93,71 @@
         
         and finally
         (if a (if b c #f) #f)
+        
+        (define-syntax and ; incorrect!
+          (syntax-rules ()
+            [(_) #t]
+            [(_ e1 e2 ...)
+             (if e1 (and e2 ...) #f)]))
+        (and (not (= x 0)) (/ 1 x))
+        (if (not (= x 0)) (and (/ 1 x)) #f)
+          (if (not (= x 0)) (and (/ 1 x)) #f)
+        
+        (define-syntax or
+          (syntax-rules ()
+            [(_) #f]
+            [(_ e) e]
+            [(_ e1 e2 e3 ...)
+             (let ([t e1])
+               (if t t (or e2 e3)))])) 
+    Section 3.2. More Recursion
+        (let ([sum (lambda (ls)
+                     (if (null? ls)
+                         0
+                         (+ (car ls) (sum (cdr ls)))))])
+          (sum '(1 2 3 4 5)))
+         it will probably raise an exception with a message to the effect that sum is undefined.
+         This is because the variable sum is visible only within the body of the let expression
+         and not within the lambda expression whose value is bound to sum. We can get around
+         this problem by passing the procedure sum to itself as follows.
+        
+        (let ([sum (lambda (sum ls)
+                     (if (null? ls)
+                         0
+                         (+ (car ls) (sum sum (cdr ls)))))])
+          (sum sum '(1 2 3 4 5))) => 15
+         This works and is a clever solution, but there is an easier way, using letrec. Like let,
+         the letrec syntactic form includes a set of variable-value pairs, along with a sequence
+         of expressions referred to as the body of the letrec.
+        (letrec ((var expr) ...) body1 body2 ...)
+         Unlike let, the variables var ... are visible not only within the body of the letrec but
+          also within expr .... Thus, we can rewrite the expression above as follows.
+        (letrec ([sum (lambda(ls)
+                        (if (null? ls)
+                            0
+                            (+ (car ls) (sum (cdr ls)))))])
+          (sum '(1 2 3 4 5))) => 15
+         Using letrec, we can also define mutually recursive procedures, such as the procedures
+         even? and odd? that were the subject of Exercise 2.8.6.
+         (letrec ([even?
+                   (lambda (x)
+                     (or (= x 0)
+                         (odd? (- x 1))))]
+                  [odd?
+                   (lambda (x)
+                     (and (not (= x 0))
+                          (even? (- x 1))))])
+           (list (even? 20) (odd? 20))) => (#t #f)
+         In a letrec expression, expr ... are most often lambda expressions, though this need not be
+         the case. One restriction on the expressions must be obeyed, however. It must be possible to
+         evaluate each expr without evaluating any of the variables var .... This restriction is 
+         always satisfied if the expressions are all lambda expressions, since even though the 
+         variables may appear within the lambda expressions, they cannot be evaluated until the 
+         resulting procedures are invoked in the body of the letrec. The following letrec expression 
+         obeys this restriction.
+         (letrec ([f (lambda () (+ x 2))]
+                  [x 1])
+           (f)) => 3
+         (letrec ([y (+ x 2)]
+                  [x 1])
+           y)
