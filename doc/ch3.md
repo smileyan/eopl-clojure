@@ -161,3 +161,68 @@
          (letrec ([y (+ x 2)]
                   [x 1])
            y)
+         We can use letrec to hide the definitions of "help" procedures so that they do not clutter
+          the top-level namespace. This is demonstrated by the definition of list? below, which
+           follows the "hare and tortoise" algorithm outlined in Exercise 2.9.8.
+         (define list?
+           (lambda (x)
+             (letrec ([race
+                       (lambda (h t)
+                         (if (pair? h)
+                             (let ([h (cdr h)])
+                               (if (pair? h)
+                                   (and (not (eq? h t))
+                                        (race (cdr h) (cdr t)))
+                                   (null? h)))
+                             (null? h)))])
+             (race x x))))
+         Just as let can be expressed as a simple direct application of a lambda expression to arguments, named let can be expressed as the application of a
+         recursive procedure to arguments. A named let of the form
+
+         (let name (var expr) ...
+           body1 body2 ...)
+         
+         can be rewritten in terms of letrec as follows.
+
+         ((letrec ((name (lambda (var ...) body1 body2 ...)))
+            name)
+           expr ...)
+         Alternatively, it can be rewritten as
+         
+         (letrec ((name (lambda (var ...) body1 body2 ...)))
+           (name expr ...))
+         
+         As we discussed in Section 2.8, some recursion is essentially iteration and executes as such.
+         When a procedure call is in tail position (see below) with respect to a lambda expression, 
+         it is considered to be a tail call, and Scheme systems must treat it properly, as a "goto" or 
+         jump. When a procedure tail-calls itself or calls itself indirectly through a series of tail 
+         calls, the result is tail recursion. Because tail calls are treated as jumps, tail recursion 
+         can be used for indefinite iteration in place of the more restrictive iteration constructs 
+         provided by other programming languages, without fear of overflowing any sort of recursion stack.
+
+         A call is in tail position with respect to a lambda expression if its value is returned directly
+         from the lambda expression, i.e., if nothing is left to do after the call but to return from the
+         lambda expression. For example, a call is in tail position if it is the last expression in the
+         body of a lambda expression, the consequent or alternative part of an if expression in tail
+         position, the last subexpression of an and or or expression in tail position, the last expression
+         in the body of a let or letrec in tail position, etc. Each of the calls to f in the expressions
+         below are tail calls, but the calls to g are not.
+
+         (lambda () (f (g)))
+        (lambda () (if (g) (f) (f)))
+        (lambda () (let ([x 4]) (f)))
+        (lambda () (or (g) (f)))
+        In each case, the values of the calls to f are returned directly, whereas the calls to g are not.
+
+        Recursion in general and named let in particular provide a natural way to implement many algorithms,
+        whether iterative, recursive, or partly iterative and partly recursive
+        ; the programmer is not burdened with two distinct mechanisms.
+
+        The following two definitions of factorial use named let expressions to compute the factorial, n!,
+        of a nonnegative integer n. The first employs the recursive definition n! = n × (n - 1)!, where 0! is defined to be 1.
+        (define factorial
+          (lambda (n)
+            (let fact ([i n])
+              (if (= i 0))
+                  1
+                  (* i (fact (- i 1)))))
