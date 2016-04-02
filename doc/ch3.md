@@ -209,9 +209,9 @@
          below are tail calls, but the calls to g are not.
 
          (lambda () (f (g)))
-        (lambda () (if (g) (f) (f)))
-        (lambda () (let ([x 4]) (f)))
-        (lambda () (or (g) (f)))
+         (lambda () (if (g) (f) (f)))
+         (lambda () (let ([x 4]) (f)))
+         (lambda () (or (g) (f)))
         In each case, the values of the calls to f are returned directly, whereas the calls to g are not.
 
         Recursion in general and named let in particular provide a natural way to implement many algorithms,
@@ -226,3 +226,39 @@
               (if (= i 0))
                   1
                   (* i (fact (- i 1)))))
+        (define factorial
+          (lambda (n)
+            (let fact ([i n] [a 1])
+              (if (= i 0)
+                  a
+                  (fact (- i 1) (* a i))))))
+        A similar problem is to compute the nth Fibonacci number for a given n.
+        The Fibonacci numbers are an infinite sequence of integers, 0, 1, 1, 2, 3, 5, 8, etc.,
+        in which each number is the sum of the two preceding numbers in the sequence.
+        A procedure to compute the nth Fibonacci number is most naturally defined recursively as follows.
+        (define fibonacci
+          (lambda (n)
+            (let fib ([i n])
+              (cond
+                [(= i 0) 0]
+                [(= i 1) 1]
+                [else (+ (fib (- i 1)) (fib (- i 2)))]))))
+        This solution requires the computation of the two preceding Fibonacci numbers at each step and 
+        hence is doubly recursive. For example, to compute (fibonacci 4) requires the computation of both 
+        (fib 3) and (fib 2), to compute (fib 3) requires computing both (fib 2) and (fib 1), and to compute 
+        (fib 2) requires computing both (fib 1) and (fib 0). This is very inefficient, and it becomes 
+        more inefficient as n grows. A more efficient solution is to adapt the accumulator solution of 
+        the factorial example above to use two accumulators, a1 for the current Fibonacci number and a2 
+        for the preceding one.
+        (define fibonacci
+          (lambda (n)
+            (let fib ([i n] [a1 1] [a2 0])
+              (if (= i 0)
+                  a1
+                  (fib (- i 1) (+ a1 a2) (a1))))))
+        Here, zero is treated as a special case, since there is no preceding value. This allows us to use 
+        the single base case (= i 1). The time it takes to compute the nth Fibonacci number using this 
+        iterative solution grows linearly with n, which makes a significant difference when compared to 
+        the doubly recursive version. To get a feel for the difference, try computing (fibonacci 35) 
+        and (fibonacci 40) using both definitions to see how long each takes.
+
