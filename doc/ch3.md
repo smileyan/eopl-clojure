@@ -262,3 +262,26 @@
         the doubly recursive version. To get a feel for the difference, try computing (fibonacci 35) 
         and (fibonacci 40) using both definitions to see how long each takes.
 
+        We can also get a feel for the difference by looking at a trace for each on small inputs. 
+        The first trace below shows the calls to fib in the non-tail-recursive version of fibonacci, with input 5.
+
+        Notice how there are several calls to fib with arguments 2, 1, and 0. 
+        The second trace shows the calls to fib in the tail-recursive version, again with input 5.
+        
+        Clearly, there is quite a difference.
+
+        The named let examples shown so far are either tail-recursive or not tail-recursive. 
+        It often happens that one recursive call within the same expression is tail-recursive while another is not. 
+        The definition of factor below computes the prime factors of its nonnegative integer argument. 
+        The first call to f is not tail-recursive, but the second one is.
+
+        (define factor
+          (lambda(n)
+            (let f ([n n] [i 2])
+              (cond
+                [(>= i n) (list n)]
+                [(integer? (/ n i))
+                     (cons (i (f (/ n i) i)))]
+                [else (f n (+ i 1))]))))
+    Section 3.3. Continuations
+
