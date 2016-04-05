@@ -347,3 +347,9 @@
              -> 120
             (product '(7 3 8 0 1 9 5))
 
+        The nonlocal exit allows product to return immediately, without performing the pending multiplications, when a zero value is detected.
+
+        Each of the continuation invocations above returns to the continuation while control remains within the procedure passed to call/cc.
+        The following example uses the continuation after this procedure has already returned.
+
+
