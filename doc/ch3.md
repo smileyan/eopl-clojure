@@ -284,4 +284,66 @@
                      (cons (i (f (/ n i) i)))]
                 [else (f n (+ i 1))]))))
     Section 3.3. Continuations
+        During the evaluation of a Scheme expression, the implementation must keep track of two things: (1) what to evaluate and (2) what to do with the value.
+        Consider the evaluation of (null? x) within the expression below.
+
+            (if (null? x) (quote ()) (cdr x))
+
+        The implementation must first evaluate (null? x) and, based on its value, evaluate either (quote ()) or (cdr x).
+        "What to evaluate" is (null? x), and "what to do with the value" is to make the decision which of (quote ()) and (cdr x) to evaluate and to do so.
+        We call "what to do with the value" the continuation of a computation.
+
+        Thus, at any point during the evaluation of any expression, there is a continuation ready to complete, or at least continue, the computation from that point.
+        Let's assume that x has the value (a b c). We can isolate six continuations during the evaluation of (if (null? x) (quote ()) (cdr x)), the continuations waiting for
+
+            the value of (if (null? x) (quote ()) (cdr x)),
+            the value of (null? x),
+            the value of null?,
+            the value of x,
+            the value of cdr, and
+            the value of x (again).
+        The continuation of (cdr x) is not listed because it is the same as the one waiting for (if (null? x) (quote ()) (cdr x)).
+
+        Scheme allows the continuation of any expression to be captured with the procedure call/cc.
+        call/cc must be passed a procedure p of one argument. call/cc constructs a concrete representation of the current continuation and passes it to p. 
+        The continuation itself is represented by a procedure k. Each time k is applied to a value, it returns the value to the continuation of the call/cc application.
+        This value becomes, in essence, the value of the application of call/cc.
+
+        If p returns without invoking k, the value returned by the procedure becomes the value of the application of call/cc.
+
+        Consider the simple examples below.
+
+            (call/cc
+              (lambda (k)
+                (* 5 4)))
+             -> 20
+
+            (call/cc
+              (lambda (k)
+                (* 5 (k 4))))
+             -> 4
+
+            (+ 2
+               (call/cc
+                 (lambda (k)
+                   (* 5 (k 4)))))
+             -> 6
+        In the first example, the continuation is captured and bound to k, but k is never used, so the value is simply the product of 5 and 4. 
+        In the second, the continuation is invoked before the multiplication, so the value is the value passed to the continuation, 4. 
+        In the third, the continuation includes the addition by 2; thus, the value is the value passed to the continuation, 4, plus 2.
+
+        Here is a less trivial example, showing the use of call/cc to provide a nonlocal exit from a recursion.
+
+            (define product
+              (lambda (ls)
+                (call/cc
+                  (lambda (break)
+                    (let f ([ls ls])
+                      (cond
+                        [(null? ls) 1]
+                        [(= (car ls ) 0) (break 0)]
+                        [else (* (car ls) (f (cdr ls)))]))))))
+            (product '(1 2 3 4 5))
+             -> 120
+            (product '(7 3 8 0 1 9 5))
 
