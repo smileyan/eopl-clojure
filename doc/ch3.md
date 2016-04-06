@@ -352,4 +352,24 @@
         Each of the continuation invocations above returns to the continuation while control remains within the procedure passed to call/cc.
         The following example uses the continuation after this procedure has already returned.
 
+            (let ([x (call/cc (lambda (k) k))])
+              (x (lambda (ignore) "hi"))) => "hi"
+
+        The continuation captured by this invocation of call/cc may be described as "Take the value, bind it to x, and apply the value of x to the value of (lambda (ignore) "hi")."
+        Since (lambda (k) k) returns its argument, x is bound to the continuation itself; 
+        this continuation is applied to the procedure resulting from the evaluation of (lambda (ignore) "hi"). 
+        This has the effect of binding x (again!) to this procedure and applying the procedure to itself. The procedure ignores its argument and returns "hi".
+
+        The following variation of the example above is probably the most confusing Scheme program of its size;
+        it might be easy to guess what it returns, but it takes some thought to figure out why.
+
+            (((call/cc (lambda (k) k)) (lambda (x) x)) "HEY!") => "HEY!"
+
+        The value of the call/cc is its own continuation, as in the preceding example. 
+        This is applied to the identity procedure (lambda (x) x), so the call/cc returns a second time with this value. 
+        Then, the identity procedure is applied to itself, yielding the identity procedure. This is finally applied to "HEY!", yielding "HEY!".
+
+        Continuations used in this manner are not always so puzzling. Consider the following definition of factorial 
+        that saves the continuation at the base of the recursion before returning 1, by assigning the top-level variable retry.
+
 
