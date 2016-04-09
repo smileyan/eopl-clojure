@@ -733,3 +733,53 @@
         When one procedure invokes another via a nontail call, the called procedure receives an implicit continuation 
         that is responsible for completing what is left of the calling procedure's body plus returning to the calling procedure's continuation.
         If the call is a tail call, the called procedure simply receives the continuation of the calling procedure.
+
+        We can make the continuations explicit by encapsulating "what to do" in an explicit procedural argument 
+        passed along on each call. For example, the continuation of the call to f in
+        
+            (letrec ([f (lambda (x) (cons 'a x))]
+                     [g (lambda (x) (cons 'b (f x)))]
+                     [h (lambda (x) (g (cons 'c x)))])
+            (cons 'd (h '()))) => (d b a c)
+        conses the symbol b onto the value returned to it, then returns the result of this cons to 
+        the continuation of the call to g. This continuation is the same as the continuation of the call to h, 
+        which conses the symbol d onto the value returned to it. We can rewrite this in continuation-passing style, 
+        or CPS, by replacing these implicit continuations with explicit procedures.
+
+            (letrec ([f (lambda (x k) (k (cons 'a x)))]
+                     [g (lambda (x k)
+                          (f x (lambda (v) (k (cons 'b v)))))]
+                     [h (lambda (x k) (g (cons 'c x) k))])
+            (h '() (lambda (v) (cons 'd v))))
+
+        Expressions written in CPS are more complicated, of course, but this style of programming 
+        has some useful applications. CPS allows a procedure to pass more than one result to its continuation, 
+        because the procedure that implements the continuation can take any number of arguments.
+
+            (define car&cdr
+              (lambda (p k)
+                (k (car p) (cdr p)))) 
+
+            (car&cdr '(a b c)
+              (lambda (x y)
+                (list y x))) => ((b c) a)
+            (car&cdr '(a b c) cons) => (a b c)
+            (car&cdr '(a b c a d) memv) => (a d)
+
+        (This can be done with multiple values as well; see Section 5.8.) 
+        CPS also allows a procedure to take separate "success" and "failure" continuations, 
+        which may accept different numbers of arguments. An example is integer-divide below, 
+        which passes the quotient and remainder of its first two arguments to its third, unless the second argument (the divisor) is zero, in which case it passes an error message to its fourth argument.
+
+            (define integer-divide
+              (lambda (x y success failure)
+                (if (= y 0)
+                    (failure "divide by zero")
+                    (let ([q (quotient x y)])
+                      (success q (- x (* q y))))))) 
+
+            (integer-divide 10 3 list (lambda (x) x)) => (3 1)
+            (integer-divide 10 0 list (lambda (x) x)) => "divide by zero"
+
+
+
