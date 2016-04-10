@@ -781,5 +781,62 @@
             (integer-divide 10 3 list (lambda (x) x)) => (3 1)
             (integer-divide 10 0 list (lambda (x) x)) => "divide by zero"
 
+        The procedure quotient, employed by integer-divide, returns the quotient of its two arguments, 
+        truncated toward zero.
+
+        Explicit success and failure continuations can sometimes help to avoid the extra communication necessary 
+        to separate successful execution of a procedure from unsuccessful execution. 
+        Furthermore, it is possible to have multiple success or failure continuations for different 
+        flavors of success or failure, each possibly taking different numbers and types of arguments. 
+        See Sections 12.10 and 12.11 for extended examples that employ continuation-passing style.
+
+        At this point you might be wondering about the relationship between CPS and the continuations captured via call/cc. 
+        It turns out that any program that uses call/cc can be rewritten in CPS without call/cc, 
+        but a total rewrite of the program (sometimes including even system-defined primitives) might be necessary. 
+        Try to convert the product example on page 75 into CPS before looking at the version below.
+
+            (define product
+              (lambda (ls k)
+                (let ([break k])
+                  (let f ([ls ls] [k k])
+                    (cond
+                      [(null? ls) (k 1)]
+                      [(= (car ls) 0) (break 0)]
+                      [else (f (cdr ls)
+                              (lambda (x)
+                                (k (* (car ls) x))))])))))
+
+    Section 3.5. Internal Definitions
+
+        In Section 2.6, we discussed top-level definitions. 
+        Definitions may also appear at the front of a lambda, let, or letrec body, 
+        in which case the bindings they create are local to the body.
+            (define f (lambda (x) (* x x)))
+            (let ([x 3])
+              (define f (lambda (y) (+ y x)))
+              (f 4)) => 7
+            (f 4) => 16
+
+        Procedures bound by internal definitions can be mutually recursive, as with letrec. 
+        For example, we can rewrite the even? and odd? example from Section 3.2 using internal definitions as follows.
+
+            (let ()
+              (define even?
+                (lambda (x)
+                  (or (= x 0)
+                    (odd? (- x 1)))))
+              (define odd?
+                (lambda (x)
+                  (and (not (= x 0))
+                    (even? (- x 1)))))
+            (even? 20)) => #t
+
+        Similarly, we can replace the use of letrec to bind race with an internal definition of race 
+        in our first definition of list?.
+
+
+
+
+
 
 
