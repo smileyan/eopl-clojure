@@ -834,6 +834,54 @@
         Similarly, we can replace the use of letrec to bind race with an internal definition of race 
         in our first definition of list?.
 
+            (define list?
+              (lambda (x)
+                (define race
+                  (lambda (h t)
+                    (if (pair? h)
+                        (let ([h (cdr h)])
+                        (if (pair? h)
+                            (and (not (eq? h t))
+                                 (race (cdr h) (cdr t)))
+                            (null? h)))
+                        (null? h))))
+                (race x x)))
+
+        In fact, internal variable definitions and letrec are practically interchangeable. 
+        The only difference, other than the obvious difference in syntax, is that variable definitions are guaranteed to be evaluated from left to right, 
+        while the bindings of a letrec may be evaluated in any order. So we cannot quite replace a lambda, let, or letrec body containing internal definitions with a letrec expression. 
+        We can, however, use letrec*, which, like let*, guarantees left-to-right evaluation order. A body of the form
+            (define var expr0)
+              ...
+              expr1
+              expr2
+              ...
+        is equivalent to a letrec* expression binding the defined variables to the associated values in a body comprising the expressions.
+
+            (letrec* ((var expr0) ...) expr1 expr2 ...)
+
+        Conversely, a letrec* of the form
+
+            (letrec* ((var expr0) ...) expr1 expr2 ...)
+
+        can be replaced with a let expression containing internal definitions and the expressions from the body as follows.
+
+            (let ()
+              (define var expr0)
+                ...
+                expr1
+                expr2
+                ...
+            )
+
+        The seeming lack of symmetry between these transformations is due to the fact that letrec* expressions can appear anywhere an expression is valid, whereas internal definitions can appear only at the front of a body. Thus, in replacing a letrec* with internal definitions, we must generally introduce a let expression to hold the definitions.
+
+        Another difference between internal definitions and letrec or letrec* is that syntax definitions may appear among the internal definitions, while letrec and letrec* bind only variables.
+
+
+
+
+
 
 
 
