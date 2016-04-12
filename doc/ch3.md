@@ -878,6 +878,92 @@
 
         Another difference between internal definitions and letrec or letrec* is that syntax definitions may appear among the internal definitions, while letrec and letrec* bind only variables.
 
+            (let ([x 3])
+              (define-syntax set-x!
+                (syntax-rules ()
+                  [(_ e) (set! x e)]))
+                (set-x! (+ x x))
+                x) => 6
+        The scope of a syntactic extension established by an internal syntax definition, as with an internal variable definition, is limited to the body in which the syntax definition appears.
+
+        Internal definitions may be used in conjunction with top-level definitions and assignments to help modularize programs. 
+        Each module of a program should make visible only those bindings that are needed by other modules, 
+        while hiding other bindings that would otherwise clutter the top-level namespace and possibly result in 
+        unintended use or redefinition of those bindings. A common way of structuring a module is shown below.
+
+            (define export-var #f)
+             ...
+            (let ()
+              (define var expr)
+                ...
+              init-expr
+                ...
+              (set! export-var export-val)
+                ...
+             )
+
+        The first set of definitions establish top-level bindings for the variables we desire to export (make visible globally). 
+        The second set of definitions establish local bindings visible only within the module. 
+        The expressions init-expr ... perform any initialization that must occur after the local bindings have been established. 
+        Finally, the set! expressions assign the exported variables to the appropriate values.
+
+        An advantage of this form of modularization is that the bracketing let expression may be removed or "commented out" during program development, 
+        making the internal definitions top-level to facilitate interactive testing. This form of modularization also has several disadvantages, as we discuss in the next section.
+
+        The following module exports a single variable, calc, which is bound to a procedure that implements a simple four-function calculator.
+
+            (define calc #f)
+            (let ()
+              (define do-calc
+                (lambda (ek expr)
+                  (cond
+                    [(number? expr) expr]
+                    [(and (list? expr) (= (length expr) 3))
+                     (let ([op (car expr)] [args (cdr expr)])
+                       (case op
+                         [(add) (apply-op ek + args)]
+                         [(sub) (apply-op ek - args)]
+                         [(mul) (apply-op ek * args)]
+                         [(div) (apply-op ek / args)]
+                         [else (complain ek "invalid operator" op)]))]
+                    [else (complain ek "invalid expression" expr)])))
+              (define apply-op
+                (lambda (ek op args)
+                  (op (do-calc ek (car args)) (do-calc ek (cadr args)))))
+              (define complain
+                (lambda (ek msg expr)
+                  (ek (list msg expr))))
+              
+              (set! calc
+                (lambda (expr)
+                  ; grab an error continuation ek
+                  (call/cc
+                    (lambda (ek)
+                      (do-calc ek expr)))))) 
+
+            (calc '(add (mul 3 2) -4)) => 2
+            (calc '(div 1/2 1/6)) => 3
+            (calc '(add (mul 3 2) (div 4))) => ("invalid expression" (div 4))
+            (calc '(mul (add 1 -2) (pow 2 7))) => ("invalid operator" pow)
+
+        This example uses a case expression to determine which operator to apply. 
+        case is similar to cond except that the test is always the same: (memv val (key ...)), 
+        where val is the value of the first case subform and (key ...) is the list of items at the front of each case clause. 
+        The case expression in the example above could be rewritten using cond as follows.
+
+            (let ([temp op])
+              (cond
+                [(memv temp '(add)) (apply-op ek + args)]
+                [(memv temp '(sub)) (apply-op ek - args)]
+                [(memv temp '(mul)) (apply-op ek * args)]
+                [(memv temp '(div)) (apply-op ek / args)]
+                [else (complain ek "invalid operator" op)]))
+
+    Section 3.6. Libraries
+
+
+
+
 
 
 
