@@ -961,12 +961,54 @@
 
     Section 3.6. Libraries
 
+        At the end of the preceding section, we discussed a form of modularization that involves assigning 
+        a set of top-level variables from within a let while keeping unpublished helpers local to the let. 
+        This form of modularization has several drawbacks:
+
+            It is unportable, because the behavior and even existence of an interactive top level is not guaranteed by the Revised6 Report.
+            It requires assignments, which make the code appear somewhat awkward and may inhibit compiler analyses and optimizations.
+            It does not support the publication of keyword bindings, since there is no analogue to set! for keywords.
+
+        An alternative that does not share these drawbacks is to create a library. 
+        A library exports a set of identifiers, each defined within the library or imported from some other library. 
+        An exported identifier need not be bound as a variable; it may be bound as a keyword instead.
+
+        The following library exports two identifiers: the variable gpa->grade and the keyword gpa. 
+        The variable gpa->grade is bound to a procedure that takes a grade-point average (GPA), represented as a number, 
+        and returns the corresponding letter grade, based on a four-point scale. 
+        The keyword gpa names a syntactic extension whose subforms must all be letter grades and whose value is the GPA computed from those letter grades.
 
 
+            (library (grades)
+              (export gpa->grade gpa)
+              (import (rnrs))
 
+              (define in-range?
+                (lambda (x n y)
+                  (and (>= n x) (< n y))))
 
-
-
+              (define-syntax range-case
+                (syntax-rules (- else)
+                  [(_ expr ((x - y) e1 e2 ...) ... [else ee1 ee2 ...])
+                    (let ([tmp expr])
+                      (cond
+                        [(in-range? x tmp y) e1 e2 ...]
+                        ...
+                        [else ee1 ee2 ...]))]
+                  [(_ expr ((x - y) e1 e2 ...) ...)
+                   (let ([tmp expr])
+                     (cond
+                       [(in-range? x tmp y) e1 e2 ...]
+                       ...))]))
+              (define letter->number
+                (lambda (x)
+                  (case x
+                    [(a)  4.0]
+                    [(b)  3.0]
+                    [(c)  2.0]
+                    [(d)  1.0]
+                    [(f)  0.0]
+                    [else (assertion-violation 'grade "invalid letter grade" x)]))) 
 
 
 
