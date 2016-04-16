@@ -127,6 +127,25 @@ Chapter 4. Procedures and Variable Bindings
         or an improper list of identifiers terminated by an identifier, in which case the clause accepts any number of arguments greater than or equal to 
         the number of formal parameters excluding the terminating identifier. If no clause accepts the number of actual parameters supplied, an exception with condition type &assertion is raised.
 
+        The following definition for make-list uses case-lambda to support an optional fill parameter.
+
+            (define make-list
+              (case-lambda
+                [(n) (make-list n #f)]
+                [(n x)
+                  (do ([n n (- n 1)] [ls '() (cons x ls)])
+                      ((zero? n) ls))]))
+
+        The substring procedure may be extended with case-lambda to accept either no end index, 
+        in which case it defaults to the end of the string, or no start and end indices, in which case substring is equivalent to string-copy:
+
+            (define substring1
+              (case-lambda
+                [(s) (substring1 s 0 (string-length s))]
+                [(s start) (substring1 s start (string-length s))]
+                [(s start end) (substring s start end)]))
+
+
 
 
 
