@@ -145,12 +145,90 @@ Chapter 4. Procedures and Variable Bindings
                 [(s start) (substring1 s start (string-length s))]
                 [(s start end) (substring s start end)]))
 
+        It is also possible to default the start index rather than the end index when only one index is supplied:
 
+            (define substring2
+              (case-lambda
+                [(s) (substring2 s 0 (string-length s))]
+                [(s end) (substring2 s 0 end)]
+                [(s start end) (substring s start end)]))
 
+        It is even possible to require that both or neither of the start and end indices be supplied, 
+        simply by leaving out the middle clause:
 
+            (define substring3
+              (case-lambda
+                [(s) (substring3 s 0 (string-length s))]
+                [(s start end) (substring s start end)]))
 
+    Section 4.4. Local Binding
 
+        syntax: (let ((var expr) ...) body1 body2 ...) 
+          returns: the values of the final body expression 
+          libraries: (rnrs base), (rnrs)
 
+          let establishes local variable bindings. Each variable var is bound to the value of the corresponding 
+          expression expr. The body of the let, in which the variables are bound, 
+          is the sequence of subforms body1 body2 ... and is processed and evaluated like a lambda body.
+
+          The forms let, let*, letrec, and letrec* (the others are described after let) are similar 
+          but serve slightly different purposes. With let, in contrast with let*, letrec, and letrec*, 
+          the expressions expr ... are all outside the scope of the variables var .... 
+          Also, in contrast with let* and letrec*, no ordering is implied for the evaluation of the expressions expr .... 
+          They may be evaluated from left to right, from right to left, or in any other order 
+          at the discretion of the implementation. Use let whenever the values are independent of the variables and 
+          the order of evaluation is unimportant.
+
+            (let ([x (* 3.0 3.0)] [y (* 4.0 4.0)])
+              (sqrt (+ x y))) => 5.0 
+
+            (let ([x 'a] [y '(b c)])
+              (cons x y)) => (a b c)
+
+            (let ([x 0] [y 1])
+              (let ([x y] [y x])
+                (list x y))) => (1 0)
+
+          The following definition of let shows the typical derivation of let from lambda.
+
+            (define-syntax let
+              (syntax-rules ()
+                [(_ ((x e) ...) b1 b2 ...)
+                 ((lambda (x ...) b1 b2 ...) e ...)]))
+
+          Another form of let, named let, is described in Section 5.4, and a definition of the full let can be found on page 312.
+
+        syntax: (let* ((var expr) ...) body1 body2 ...) 
+          returns: the values of the final body expression 
+          libraries: (rnrs base), (rnrs)
+
+          let* is similar to let except that the expressions expr ... are evaluated in sequence from left to right, 
+          and each of these expressions is within the scope of the variables to the left. 
+          Use let* when there is a linear dependency among the values or when the order of evaluation is important.
+
+            (let* ([x (* 5.0 5.0)]
+                   [y (- x (* 4.0 4.0))])
+              (sqrt y)) => 3.0
+
+            (let ([x 0] [y 1])
+              (let* ([x y] [y x])
+                (list x y))) => (1 1)
+
+          Any let* expression may be converted to a set of nested let expressions. 
+          The following definition of let* demonstrates the typical transformation.
+
+            (define-syntax let*
+              (syntax-rules ()
+                [(_ () e1 e2 ...)
+                 (let () e1 e2 ...)]
+                [(_ ((x1 v1) (x2 v2) ...) e1 e2 ...)
+             (let ((x1 v1))
+                   (let* ((x2 v2) ...) e1 e2 ...))]))
+
+        syntax: (letrec ((var expr) ...) body1 body2 ...) 
+
+          returns: the values of the final body expression 
+          libraries: (rnrs base), (rnrs)
 
 
 
