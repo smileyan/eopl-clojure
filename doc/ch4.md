@@ -226,9 +226,111 @@ Chapter 4. Procedures and Variable Bindings
                    (let* ((x2 v2) ...) e1 e2 ...))]))
 
         syntax: (letrec ((var expr) ...) body1 body2 ...) 
-
           returns: the values of the final body expression 
           libraries: (rnrs base), (rnrs)
+
+          letrec is similar to let and let*, except that all of the expressions expr ... are within the scope of all of 
+          the variables var .... letrec allows the definition of mutually recursive procedures.
+            (letrec ([sum (lambda (x)
+                            (if (zero? x)
+                                0
+                                (+ x (sum (- x 1)))))])
+              (sum 5)) => 15
+
+          The order of evaluation of the expressions expr ... is unspecified, so a program must not evaluate a reference to any of the variables 
+          bound by the letrec expression before all of the values have been computed. (Occurrence of a variable within a lambda expression does not count as a reference, 
+          unless the resulting procedure is applied before all of the values have been computed.) If this restriction is violated, an exception with condition type &assertion is raised.
+
+          An expr should not return more than once. That is, it should not return both normally and via the invocation of a continuation obtained during its evaluation, 
+          and it should not return twice via two invocations of such a continuation. Implementations are not required to detect a violation of this restriction, 
+          but if they do, an exception with condition type &assertion is raised.
+
+          Choose letrec over let or let* when there is a circular dependency among the variables and their values and when the order of evaluation is unimportant. 
+          Choose letrec* over letrec when there is a circular dependency and the bindings need to be evaluated from left to right.
+
+          A letrec expression of the form
+
+            (letrec ((var expr) ...) body1 body2 ...)
+
+          may be expressed in terms of let and set! as
+
+            (let ((var #f) ...)
+              (let ((temp expr) ...)
+                (set! var temp) ...
+                (let () body1 body2 ...)))
+
+          where temp ... are fresh variables, i.e., ones that do not already appear in the letrec expression, one for each (var expr) pair. 
+          The outer let expression establishes the variable bindings. The initial value given each variable is unimportant, 
+          so any value suffices in place of #f. The bindings are established first so that expr ... may contain occurrences of the variables, i.e., 
+          so that the expressions are computed within the scope of the variables. The middle let evaluates the values and binds them to the temporary variables, 
+          and the set! expressions assign each variable to the corresponding value. The inner let is present in case the body contains internal definitions.
+
+          A definition of letrec that uses this transformation is shown on page 310.
+
+          This transformation does not enforce the restriction that the expr expressions must not evaluate any references of or assignments to the variables. 
+          More elaborate transformations that enforce this restriction and actually produce more efficient code are possible [31].
+
+        syntax: (letrec* ((var expr) ...) body1 body2 ...) 
+          returns: the values of the final body expression 
+          libraries: (rnrs base), (rnrs)
+
+          letrec* is similar to letrec, except that letrec* evaluates expr ... in sequence from left to right. 
+          While programs must still not evaluate a reference to any var before the corresponding expr has been evaluated, 
+          references to var may be evaluated any time thereafter, including during the evaluation of the expr of any subsequent binding.
+
+          A letrec* expression of the form
+
+          (letrec* ((var expr) ...) body1 body2 ...)
+
+          may be expressed in terms of let and set! as
+
+            (let ((var #f) ...)
+              (set! var expr) ...
+              (let () body1 body2 ...))
+
+          The outer let expression creates the bindings, each assignment evaluates an expression and immediately sets the corresponding variable to its value, 
+          in sequence, and the inner let evaluates the body. let is used in the latter case rather than begin since the body may include internal definitions as well as expressions.
+
+            (letrec* ([sum (lambda (x)
+                             (if (zero? x)
+                                 0
+                                 (+ x (sum (- x 1)))))]
+                      [f (lambda () (cons n n-sum))]
+                      [n 15]
+                      [n-sum (sum n)])
+              (f)) => (15 . 120) 
+
+            (letrec* ([f (lambda () (lambda () g))]
+                      [g (f)])
+              (eq? (g) g)) => #t 
+
+            (letrec* ([g (f)]
+                      [f (lambda () (lambda () g))])
+              (eq? (g) g)) => exception: attempt to reference undefined variable f
+
+    Section 4.5. Multiple Values
+
+        syntax: (let-values ((formals expr) ...) body1 body2 ...) 
+        syntax: (let*-values ((formals expr) ...) body1 body2 ...) 
+        returns: the values of the final body expression 
+        libraries: (rnrs base), (rnrs)
+
+        let-values is a convenient way to receive multiple values and bind them to variables. 
+        It is structured like let but permits an arbitrary formals list (like lambda) on each left-hand side. 
+        let*-values is similar but performs the bindings in left-to-right order, as with let*. 
+        An exception with condition type &assertion is raised if the number of values returned by an expr is not appropriate for the corresponding formals, 
+        as described in the entry for lambda above. A definition of let-values is given on page 310.
+
+            (let-values ([(a b) (values 1 2)] [c (values 1 2 3)])
+              (list a b c)) => (1 2 (1 2 3)) 
+
+            (let*-values ([(a b) (values 1 2)] [(a b) (values b a)])
+              (list a b)) => (2 1)
+
+
+
+
+
 
 
 
