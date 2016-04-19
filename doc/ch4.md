@@ -327,6 +327,142 @@ Chapter 4. Procedures and Variable Bindings
             (let*-values ([(a b) (values 1 2)] [(a b) (values b a)])
               (list a b)) => (2 1)
 
+    Section 4.6. Variable Definitions
+        syntax: (define var expr) 
+        syntax: (define var) 
+        syntax: (define (var0 var1 ...) body1 body2 ...) 
+        syntax: (define (var0 . varr) body1 body2 ...) 
+        syntax: (define (var0 var1 var2 ... . varr) body1 body2 ...) 
+        libraries: (rnrs base), (rnrs)
+
+        In the first form, define creates a new binding of var to the value of expr. The expr should not return more than once. 
+        That is, it should not return both normally and via the invocation of a continuation obtained during its evaluation, 
+        and it should not return twice via two invocations of such a continuation. 
+        Implementations are not required to detect a violation of this restriction, but if they do, an exception with condition type &assertion is raised.
+
+        The second form is equivalent to (define var unspecified), where unspecified is some unspecified value. 
+        The remaining are shorthand forms for binding variables to procedures; they are identical to the following definition in terms of lambda.
+
+            (define var
+              (lambda formals
+                body1 body2 ...))
+
+        where formals is (var1 ...), varr, or (var1 var2 ... . varr) for the third, fourth, and fifth define formats.
+
+        Definitions may appear at the front of a library body, anywhere among the forms of a top-level-program body, 
+        and at the front of a lambda or case-lambda body or the body of any form derived from lambda, e.g., let, or letrec*. 
+        Any body that begins with a sequence of definitions is transformed during macro expansion into a letrec* expression as described on page 292.
+
+        Syntax definitions may appear along with variable definitions wherever variable definitions may appear; see Chapter 8.
+
+            (define x 3)
+            x => 3
+
+            (define f
+              (lambda (x y)
+                (* (+ x y) 2)))
+            (f 5 4) => 18 
+
+            (define (sum-of-squares x y)
+              (+ (* x x) (* y y)))
+            (sum-of-squares 3 4) => 25 
+
+            (define f
+              (lambda (x)
+                (+ x 1)))
+            (let ([x 2])
+              (define f
+                (lambda (y)
+                  (+ y x)))
+              (f 3)) <graphic> 5
+            (f 3) <graphic> 4
+
+        A set of definitions may be grouped by enclosing them in a begin form. 
+        Definitions grouped in this manner may appear wherever ordinary variable and syntax definitions may appear. 
+        They are treated as if written separately, i.e., without the enclosing begin form. This feature allows syntactic extensions to expand into groups of definitions.
+
+            (define-syntax multi-define-syntax
+              (syntax-rules ()
+                [(_ (var expr) ...)
+                 (begin
+                   (define-syntax var expr)
+                   ...)]))
+
+            (let ()
+              (define plus
+                (lambda (x y)
+                    (if (zero? x)
+                        y
+                        (plus (sub1 x) (add1 y)))))
+              (multi-define-syntax
+                (add1 (syntax-rules () [(_ e) (+ e 1)]))
+                (sub1 (syntax-rules () [(_ e) (- e 1)])))
+              (plus 7 8)) => 15
+
+        Many implementations support an interactive "top level" in which variable and other definitions may be entered interactively or loaded from files. 
+        The behavior of these top-level definitions is outside the scope of the Revised6 Report, but as long as top-level variables are defined 
+        before any references or assignments to them are evaluated, the behavior is consistent across most implementations. 
+        So, for example, the reference to g in the top-level definition of f below is okay if g is not already defined, and g is assumed to name a variable to be defined at some later point.
+
+            (define f
+              (lambda (x)
+                (g x)))
+
+        If this is then followed by a definition of g before f is evaluated, the assumption that g would be defined as a variable is proven correct, and a call to f works as expected.
+
+            (define g
+              (lambda (x)
+                (+ x x)))
+            (f 3) => 6
+
+        If g were defined instead as the keyword for a syntactic extension, the assumption that g would be bound as a variable is proven false, and if f is not redefined before it is invoked, the implementation is likely to raise an exception.
+
+    Section 4.7. Assignment
+        syntax: (set! var expr) 
+        returns: unspecified 
+        libraries: (rnrs base), (rnrs)
+
+        set! does not establish a new binding for var but rather alters the value of an existing binding. 
+        It first evaluates expr, then assigns var to the value of expr. Any subsequent reference to var within the scope of the altered binding evaluates to the new value.
+
+        Assignments are not employed as frequently in Scheme as in most other languages, but they are useful for implementing state changes.
+
+            (define flip-flop
+              (let ([state #f])
+                (lambda ()
+                  (set! state (not state))
+                  state))) 
+
+            (flip-flop) <graphic> #t
+            (flip-flop) <graphic> #f
+            (flip-flop) <graphic> #t
+
+        Assignments are also useful for caching values. 
+        The example below uses a technique called memoization, 
+        in which a procedure records the values associated with old input values so it need not recompute them, 
+        to implement a fast version of the otherwise exponential doubly recursive definition of the Fibonacci function (see page 69).
+
+            (define memoize
+              (lambda (proc)
+                (let ([cache '()])
+                  (lambda (x)
+                    (cond
+                      [(assq x cache) => cdr]
+                      [else
+                       (let ([ans (proc x)])
+                         (set! cache (cons (cons x ans) cache))
+                         ans)]))))) 
+
+            (define fibonacci
+              (memoize
+                (lambda (n)
+                  (if (< n 2)
+                      1
+                      (+ (fibonacci (- n 1)) (fibonacci (- n 2))))))) 
+
+            (fibonacci 100) <graphic> 573147844013817084101
+
+
 
 
 
