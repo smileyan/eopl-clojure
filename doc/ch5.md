@@ -258,12 +258,190 @@ Chapter 5. Control Operations
             (select 'b) <graphic> 2
             (select 'e) <graphic> 0
 
+        syntax: else 
+        syntax: => 
+        libraries: (rnrs base), (rnrs exceptions), (rnrs)
+
+        These identifiers are auxiliary keywords for cond. Both also serve as auxiliary keywords for guard, and else also serves as an auxiliary keyword for case. 
+        It is a syntax violation to reference these identifiers except in contexts where they are recognized as auxiliary keywords.
+
+        syntax: (when test-expr expr1 expr2 ...) 
+        syntax: (unless test-expr expr1 expr2 ...) 
+        returns: see below 
+        libraries: (rnrs control), (rnrs)
+
+        For when, if test-expr evaluates to a true value, the expressions expr1 expr2 ... are evaluated in sequence, and the values of the last expression are returned. 
+        If test-expr evaluates to false, none of the other expressions are evaluated, and the value or values of when are unspecified.
+
+        For unless, if test-expr evaluates to false, the expressions expr1 expr2 ... are evaluated in sequence, and the values of the last expression are returned. 
+        If test-expr evaluates to a true value, none of the other expressions are evaluated, and the value or values of unless are unspecified.
+
+        A when or unless expression is usually clearer than the corresponding "one-armed" if expression.
 
 
+            (let ([x -4] [sign 'plus])
+              (when (< x 0)
+                (set! x (- 0 x))
+                (set! sign 'minus))
+              (list sign x)) <graphic> (minus 4) 
+
+            (define check-pair
+              (lambda (x)
+                (unless (pair? x)
+                  (syntax-violation 'check-pair "invalid argument" x))
+                x)) 
+
+            (check-pair '(a b c)) <graphic> (a b c)
+
+        when may be defined as follows:
+
+            (define-syntax when
+              (syntax-rules ()
+                [(_ e0 e1 e2 ...)
+                 (if e0 (begin e1 e2 ...))]))
+
+        unless may be defined as follows:
+
+            (define-syntax unless
+              (syntax-rules ()
+                [(_ e0 e1 e2 ...)
+                 (if (not e0) (begin e1 e2 ...))]))
+
+        or in terms of when as follows:
+
+            (define-syntax unless
+              (syntax-rules ()
+                [(_ e0 e1 e2 ...)
+                 (when (not e0) e1 e2 ...)]))
+
+        syntax: (case expr0 clause1 clause2 ...) 
+        returns: see below 
+        libraries: (rnrs base), (rnrs)
+
+        Each clause but the last must take the form
+
+            ((key ...) expr1 expr2 ...)
+
+        where each key is a datum distinct from the other keys. The last clause may be in the above form or it may be an else clause of the form
+
+            (else expr1 expr2 ...)
+
+        expr0 is evaluated and the result is compared (using eqv?) against the keys of each clause in order. 
+        If a clause containing a matching key is found, the expressions expr1 expr2 ... are evaluated in sequence and the values of the last expression are returned.
+
+        If none of the clauses contains a matching key and an else clause is present, the expressions expr1 expr2 ... of 
+        the else clause are evaluated in sequence and the values of the last expression are returned.
+
+        If none of the clauses contains a matching key and no else clause is present, the value or values are unspecified.
+
+            (define-syntax case
+              (lambda (x)
+                (syntax-case x ()
+                  [(_ e c1 c2 ...)
+                   #`(let ([t e])
+                       #,(let f ([c1 #'c1] [cmore #'(c2 ...)])
+                           (if (null? cmore)
+                               (syntax-case c1 (else)
+                                 [(else e1 e2 ...) #'(begin e1 e2 ...)]
+                                 [((k ...) e1 e2 ...)
+                                  #'(if (memv t '(k ...)) (begin e1 e2 ...))])
+                               (syntax-case c1 ()
+                                 [((k ...) e1 e2 ...)
+                                  #`(if (memv t '(k ...))
+                                        (begin e1 e2 ...)
+                                        #,(f (car cmore) (cdr cmore)))]))))])))
+
+        See page 306 for a syntax definition of case.
+
+            (let ([x 4] [y 5])
+              (case (+ x y)
+                [(1 3 5 7 9) 'odd]
+                [(0 2 4 6 8) 'even]
+                [else 'out-of-range])) <graphic> odd
 
 
 
     Section 5.4. Recursion and Iteration
+
+        syntax: (let name ((var expr) ...) body1 body2 ...) 
+        returns: values of the final body expression 
+        libraries: (rnrs base), (rnrs)
+
+        This form of let, called named let, is a general-purpose iteration and recursion construct. 
+        It is similar to the more common form of let (see Section 4.4) in the binding of the variables var ... 
+        to the values of expr ... within the body body1 body2 ..., which is processed and evaluated like a lambda body. 
+        In addition, the variable name is bound within the body to a procedure that 
+        may be called to recur or iterate; 
+        the arguments to the procedure become the new values of the variables var ....
+
+        A named let expression of the form
+
+            (let name ((var expr) ...)
+              body1 body2 ...)
+
+        can be rewritten with letrec as follows.
+
+            ((letrec ((name (lambda (var ...) body1 body2 ...)))
+               name)
+             expr ...)
+
+        A syntax definition of let that implements this transformation and handles unnamed let as well can be found on page 312.
+
+            (define-syntax let
+              (lambda (x)
+                (syntax-case x ()
+                  [(_ ((x e) ...) b1 b2 ...)
+                   #'((lambda (x ...) b1 b2 ...) e ...)]
+                  [(_ f ((x e) ...) b1 b2 ...)
+                   (identifier? #'f)
+                   #'((rec f (lambda (x ...) b1 b2 ...)) e ...)])))
+
+        The procedure divisors defined below uses named let to compute the nontrivial divisors of a nonnegative integer.
+
+            (define divisors
+              (lambda (n)
+                (let f ([i 2])
+                  (cond
+                    [(>= i n) '()]
+                    [(integer? (/ n i)) (cons i (f (+ i 1)))]
+                    [else (f (+ i 1))])))) 
+
+            (divisors 5) <graphic> ()
+            (divisors 32) <graphic> (2 4 8 16)
+
+        The version above is non-tail-recursive when a divisor is found and tail-recursive when a divisor is not found. 
+        The version below is fully tail-recursive. 
+        It builds up the list in reverse order, 
+        but this is easy to remedy, if desired, by reversing the list on exit.
+
+            (define divisors
+              (lambda (n)
+                (let f ([i 2] [ls '()])
+                  (cond
+                    [(>= i n) ls]
+                    [(integer? (/ n i)) (f (+ i 1) (cons i ls))]
+                    [else (f (+ i 1) ls)]))))
+
+        syntax: (do ((var init update) ...) (test result ...) expr ...) 
+        returns: the values of the last result expression 
+        libraries: (rnrs control), (rnrs)
+
+        do allows a common restricted form of iteration to be expressed succinctly. 
+        The variables var ... are bound initially to the values of init ... and 
+                              are rebound on each subsequent iteration to the values of update .... 
+        The expressions test, update ..., expr ..., and result ... are all within the scope of the bindings established for var ....
+
+        On each step, the test expression test is evaluated. 
+        If the value of test is true, iteration ceases, the expressions result ... are evaluated in sequence, 
+        and the values of the last expression are returned. 
+        If no result expressions are present, the value or values of the do expression are unspecified.
+
+        If the value of test is false, the expressions expr ... are evaluated in sequence, 
+        the expressions update ... are evaluated, new bindings for var ... to the values of update ... are created, and iteration continues.
+
+
+
+
 
 
 
