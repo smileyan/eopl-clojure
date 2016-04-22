@@ -439,13 +439,96 @@ Chapter 5. Control Operations
         If the value of test is false, the expressions expr ... are evaluated in sequence, 
         the expressions update ... are evaluated, new bindings for var ... to the values of update ... are created, and iteration continues.
 
+        The expressions expr ... are evaluated only for effect and are often omitted entirely. 
+        Any update expression may be omitted, in which case the effect is the same as if the update were simply the corresponding var.
 
+        Although looping constructs in most languages require that the loop iterands be updated via assignment, 
+        do requires the loop iterands var ... to be updated via rebinding. In fact, no side effects are involved in the evaluation of a do expression unless they are performed explicitly by its subexpressions.
 
+        See page 313 for a syntax definition of do.
 
+        The definitions of factorial and fibonacci below are straightforward translations of the tail-recursive named-let versions given in Section 3.2.
 
+            (define factorial
+              (lambda (n)
+                (do ([i n (- i 1)] [a 1 (* a i)])
+                    ((zero? i) a)))) 
 
+            (factorial 10) <graphic> 3628800 
+
+            (define fibonacci
+              (lambda (n)
+                (if (= n 0)
+                    0
+                    (do ([i n (- i 1)] [a1 1 (+ a1 a2)] [a2 0 a1])
+                        ((= i 1) a1))))) 
+
+            (fibonacci 6) <graphic> 8
+
+        The definition of divisors below is similar to the tail-recursive definition of divisors given with the description of named let above.
+
+            (define divisors
+              (lambda (n)
+                (do ([i 2 (+ i 1)]
+                     [ls '()
+                         (if (integer? (/ n i))
+                             (cons i ls)
+                             ls)])
+                    ((>= i n) ls))))
+
+        The definition of scale-vector! below, which scales each element of a vector v by a constant k, demonstrates a nonempty do body.
+
+            (define scale-vector!
+              (lambda (v k)
+                (let ([n (vector-length v)])
+                  (do ([i 0 (+ i 1)])
+                      ((= i n))
+                    (vector-set! v i (* (vector-ref v i) k)))))) 
+
+            (define vec (vector 1 2 3 4 5))
+            (scale-vector! vec 2)
+            vec <graphic> #(2 4 6 8 10)
 
     Section 5.5. Mapping and Folding
+
+        When a program must recur or iterate over the elements of a list, a mapping or folding operator is often more convenient. 
+        These operators abstract away from null checks and explicit recursion by applying a procedure to the elements of the list one by one. A few mapping operators are also available for vectors and strings.
+
+        procedure: (map procedure list1 list2 ...) 
+        returns: list of results 
+        libraries: (rnrs base), (rnrs)
+
+        map applies procedure to corresponding elements of the lists list1 list2 ... and returns a list of the resulting values. 
+        The lists list1 list2 ... must be of the same length. procedure should accept as many arguments as there are lists, 
+        should return a single value, and should not mutate the list arguments.
+
+            (map abs '(1 -2 3 -4 5 -6)) <graphic> (1 2 3 4 5 6) 
+
+            (map (lambda (x y) (* x y))
+                 '(1 2 3 4)
+                 '(8 7 6 5)) <graphic> (8 14 18 20)
+
+        While the order in which the applications themselves occur is not specified, the order of the values in the output list is the same as that of the corresponding values in the input lists.
+
+        map might be defined as follows.
+
+            (define map
+              (lambda (f ls . more)
+                (if (null? more)
+                    (let map1 ([ls ls])
+                      (if (null? ls)
+                          '()
+                          (cons (f (car ls))
+                                (map1 (cdr ls)))))
+                    (let map-more ([ls ls] [more more])
+                      (if (null? ls)
+                          '()
+                          (cons
+                            (apply f (car ls) (map car more))
+                            (map-more (cdr ls) (map cdr more))))))))
+
+        No error checking is done by this version of map; f is assumed to be a procedure and the other arguments are assumed to be proper lists of the same length. 
+        An interesting feature of this definition is that map uses itself to pull out the cars and cdrs of the list of input lists; this works because of the special treatment of the single-list case.
 
 
 
