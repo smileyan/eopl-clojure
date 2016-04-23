@@ -530,7 +530,62 @@ Chapter 5. Control Operations
         No error checking is done by this version of map; f is assumed to be a procedure and the other arguments are assumed to be proper lists of the same length. 
         An interesting feature of this definition is that map uses itself to pull out the cars and cdrs of the list of input lists; this works because of the special treatment of the single-list case.
 
+        procedure: (for-each procedure list1 list2 ...) 
+        returns: unspecified 
+        libraries: (rnrs base), (rnrs)
 
+        for-each is similar to map except that for-each does not create and return a list of the resulting values, 
+        and for-each guarantees to perform the applications in sequence over the elements from left to right. 
+        procedure should accept as many arguments as there are lists and should not mutate the list arguments. 
+        for-each may be defined without error checks as follows.
+
+            (define for-each
+              (lambda (f ls . more)
+                (do ([ls ls (cdr ls)] [more more (map cdr more)])
+                    ((null? ls))
+                  (apply f (car ls) (map car more))))) 
+
+            (let ([same-count 0])
+              (for-each
+                (lambda (x y)
+                  (when (= x y)
+                    (set! same-count (+ same-count 1))))
+                '(1 2 3 4 5 6)
+                '(2 3 3 4 7 6))
+              same-count) <graphic> 3
+
+        procedure: (exists procedure list1 list2 ...) 
+        returns: see below 
+        libraries: (rnrs lists), (rnrs)
+
+        The lists list1 list2 ... must be of the same length. 
+        procedure should accept as many arguments as there are lists and should not mutate the list arguments. 
+        If the lists are empty, exists returns #f. 
+        Otherwise, exists applies procedure to corresponding elements of the lists list1 list2 ... in sequence until 
+        either the lists each have only one element or procedure returns a true value t. 
+        In the former case, exists tail-calls procedure, applying it to the remaining element of each list. In the latter case, exists returns t.
+
+            (exists symbol? '(1.0 #\a "hi" '())) <graphic> #f 
+
+            (exists member
+                    '(a b c)
+                    '((c b) (b a) (a c))) <graphic> (b a) 
+
+            (exists (lambda (x y z) (= (+ x y) z))
+                    '(1 2 3 4)
+                    '(1.2 2.3 3.4 4.5)
+                    '(2.3 4.4 6.4 8.6)) <graphic> #t
+
+        exists may be defined (somewhat inefficiently and without error checks) as follows:
+
+            (define exists
+              (lambda (f ls . more)
+                (and (not (null? ls))
+                  (let exists ([x (car ls)] [ls (cdr ls)] [more more])
+                    (if (null? ls)
+                        (apply f x (map car more))
+                        (or (apply f x (map car more))
+                            (exists (car ls) (cdr ls) (map cdr more))))))))
 
     Section 5.6. Continuations
 
