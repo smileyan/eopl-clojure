@@ -587,6 +587,77 @@ Chapter 5. Control Operations
                         (or (apply f x (map car more))
                             (exists (car ls) (cdr ls) (map cdr more))))))))
 
+        procedure: (for-all procedure list1 list2 ...) 
+        returns: see below 
+        libraries: (rnrs lists), (rnrs)
+
+        The lists list1 list2 ... must be of the same length. 
+        procedure should accept as many arguments as there are lists and should not mutate the list arguments. 
+        If the lists are empty, for-all returns #t. 
+        Otherwise, for-all applies procedure to corresponding elements of the lists list1 list2 ... in sequence 
+        until either the lists each have only one element left or procedure returns #f. 
+        In the former case, for-all tail-calls procedure, applying it to the remaining element of each list. In the latter case, for-all returns #f.
+
+            (for-all symbol? '(a b c d)) <graphic> #t 
+
+            (for-all =
+                     '(1 2 3 4)
+                     '(1.0 2.0 3.0 4.0)) <graphic> #t 
+
+            (for-all (lambda (x y z) (= (+ x y) z))
+                     '(1 2 3 4)
+                     '(1.2 2.3 3.4 4.5)
+                     '(2.2 4.3 6.5 8.5)) <graphic> #f
+
+        for-all may be defined (somewhat inefficiently and without error checks) as follows:
+
+            (define for-all
+              (lambda (f ls . more)
+                (or (null? ls)
+                  (let for-all ([x (car ls)] [ls (cdr ls)] [more more])
+                    (if (null? ls)
+                        (apply f x (map car more))
+                        (and (apply f x (map car more))
+                             (for-all (car ls) (cdr ls) (map cdr more))))))))
+
+        procedure: (fold-left procedure obj list1 list2 ...) 
+        returns: see below 
+        libraries: (rnrs lists), (rnrs)
+
+        The list arguments should all have the same length. 
+        procedure should accept one more argument than the number of list arguments and return a single value. 
+        It should not mutate the list arguments.
+
+        fold-left returns obj if the list arguments are empty. 
+        If they are not empty, fold-left applies procedure to obj and the cars of list1 list2 ..., 
+        then recurs with the value returned by procedure in place of obj and the cdr of each list in place of the list.
+
+            (fold-left cons '() '(1 2 3 4)) <graphic> ((((() . 1) . 2) . 3) . 4) 
+
+            (fold-left
+              (lambda (a x) (+ a (* x x)))
+              0 '(1 2 3 4 5)) <graphic> 55 
+
+            (fold-left
+              (lambda (a . args) (append args a))
+              '(question)
+              '(that not to)
+              '(is to be)
+              '(the be: or)) <graphic> (to be or not to be: that is the question)
+
+        procedure: (fold-right procedure obj list1 list2 ...) 
+        returns: see below 
+        libraries: (rnrs lists), (rnrs)
+
+        The list arguments should all have the same length. 
+        procedure should accept one more argument than the number of list arguments and return a single value. 
+        It should not mutate the list arguments.
+
+        fold-right returns obj if the list arguments are empty. 
+        If they are not empty, fold-right recurs with the cdr of each list replacing the list, 
+        then applies procedure to the cars of list1 list2 ... and the result returned by the recursion.
+
+
     Section 5.6. Continuations
 
 
