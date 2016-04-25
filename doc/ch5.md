@@ -657,6 +657,64 @@ Chapter 5. Control Operations
         If they are not empty, fold-right recurs with the cdr of each list replacing the list, 
         then applies procedure to the cars of list1 list2 ... and the result returned by the recursion.
 
+            (fold-right cons '() '(1 2 3 4)) <graphic> (1 2 3 4) 
+
+            (fold-right
+              (lambda (x a) (+ a (* x x)))
+              0 '(1 2 3 4 5)) <graphic> 55 
+
+            (fold-right
+              (lambda (x y a) (cons* x y a))   => (parting is such sweet sorrow
+              '((with apologies))                  gotta go see ya tomorrow
+              '(parting such sorrow go ya)         (with apologies))
+              '(is sweet gotta see tomorrow))
+
+        procedure: (vector-map procedure vector1 vector1 ...) 
+        returns: vector of results 
+        libraries: (rnrs base), (rnrs)
+
+        vector-map applies procedure to corresponding elements of vector1 vector2 ... and returns a vector of the resulting values. 
+        The vectors vector1 vector2 ... must be of the same length, and procedure should accept as many arguments as there are vectors and 
+        return a single value.
+
+            (vector-map abs '#(1 -2 3 -4 5 -6)) <graphic> #(1 2 3 4 5 6)
+
+            (vector-map (lambda (x y) (* x y))
+              '#(1 2 3 4)
+              '#(8 7 6 5)) <graphic> #(8 14 18 20)
+
+        While the order in which the applications themselves occur is not specified, 
+        the order of the values in the output vector is the same as that of the corresponding values in the input vectors.
+
+        procedure: (vector-for-each procedure vector1 vector2 ...) 
+        returns: unspecified 
+        libraries: (rnrs base), (rnrs)
+
+        vector-for-each is similar to vector-map except that vector-for-each does not create and return a vector of the resulting values, 
+        and vector-for-each guarantees to perform the applications in sequence over the elements from left to right.
+
+            (let ([same-count 0])
+              (vector-for-each
+                (lambda (x y)
+                  (when (= x y)
+                    (set! same-count (+ same-count 1))))
+                '#(1 2 3 4 5 6)
+                '#(2 3 3 4 7 6))
+              same-count) <graphic> 3
+
+        procedure: (string-for-each procedure string1 string2 ...) 
+        returns: unspecified 
+        libraries: (rnrs base), (rnrs)
+
+        string-for-each is similar to for-each and vector-for-each except that the inputs are strings rather than lists or vectors.
+
+            (let ([ls '()])
+              (string-for-each
+                (lambda r (set! ls (cons r ls)))
+                "abcd"
+                "===="
+                "1234")
+              (map list->string (reverse ls))) <graphic> ("a=1" "b=2" "c=3" "d=4")
 
     Section 5.6. Continuations
 
