@@ -718,6 +718,39 @@ Chapter 5. Control Operations
 
     Section 5.6. Continuations
 
+      Continuations in Scheme are procedures that represent the remainder of a computation from a given point in the computation. They may be obtained with call-with-current-continuation, which can be abbreviated to call/cc.
+
+      procedure: (call/cc procedure) 
+      procedure: (call-with-current-continuation procedure) 
+      returns: see below 
+      libraries: (rnrs base), (rnrs)
+
+      These procedures are the same. The shorter name is often used for the obvious reason that it requires fewer keystrokes to type.
+
+      call/cc obtains its continuation and passes it to procedure, which should accept one argument. 
+      The continuation itself is represented by a procedure. Each time this procedure is applied to zero or more values, 
+      it returns the values to the continuation of the call/cc application. That is, when the continuation procedure is called, it returns its arguments as the values of the application of call/cc.
+
+      If procedure returns normally when passed the continuation procedure, the values returned by call/cc are the values returned by procedure.
+
+      Continuations allow the implementation of nonlocal exits, backtracking [14,29], coroutines [16], and multitasking [10,32].
+
+      The example below illustrates the use of a continuation to perform a nonlocal exit from a loop.
+
+        (define member
+          (lambda (x ls)
+            (call/cc
+              (lambda (break)
+                (do ([ls ls (cdr ls)])
+                    ((null? ls) #f)
+                  (when (equal? x (car ls))
+                    (break ls))))))) 
+
+        (member 'd '(a b c)) <graphic> #f
+        (member 'b '(a b c)) <graphic> (b c)
+
+      Additional examples are given in Sections 3.3 and 12.11.
+
 
 
     Section 5.7. Delayed Evaluation
