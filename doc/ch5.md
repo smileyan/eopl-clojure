@@ -830,7 +830,34 @@ Chapter 5. Control Operations
 
         (((call/cc (lambda (k) k)) (lambda (x) x)) "HEY!") <graphic> "HEY!"
 
-        The value of the call/cc is its own continuation, as in the preceding example. This is applied to the identity procedure (lambda (x) x), so the call/cc returns a second time with this value. Then, the identity procedure is applied to itself, yielding the identity procedure. This is finally applied to "HEY!", yielding "HEY!".
+        The value of the call/cc is its own continuation, as in the preceding example. 
+        This is applied to the identity procedure (lambda (x) x), so the call/cc returns a second time with this value. 
+        Then, the identity procedure is applied to itself, yielding the identity procedure. 
+        This is finally applied to "HEY!", yielding "HEY!".
+
+        Continuations used in this manner are not always so puzzling. 
+        Consider the following definition of factorial that saves the continuation at the base of the recursion before returning 1, by assigning the top-level variable retry.
+
+          (define retry #f) 
+
+          (define factorial
+            (lambda (x)
+              (if (= x 0)
+                  (call/cc (lambda (k) (set! retry k) 1))
+                  (* x (factorial (- x 1))))))
+
+        With this definition, factorial works as we expect factorial to work, except it has the side effect of assigning retry.
+
+          (factorial 4) <graphic> 24
+          (retry 1) <graphic> 24
+          (retry 2) <graphic> 48
+
+        The continuation bound to retry might be described as "Multiply the value by 1, then multiply this result by 2, then multiply this result by 3, then multiply this result by 4." 
+        If we pass the continuation a different value, i.e., not 1, we will cause the base value to be something other than 1 and hence change the end result.
+
+          (retry 2) <graphic> 48
+          (retry 5) <graphic> 120
+
 
 
 
