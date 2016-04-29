@@ -858,6 +858,33 @@ Chapter 5. Control Operations
           (retry 2) <graphic> 48
           (retry 5) <graphic> 120
 
+        This mechanism could be the basis for a breakpoint package implemented with call/cc; each time a breakpoint is encountered, 
+        the continuation of the breakpoint is saved so that the computation may be restarted from the breakpoint (more than once, if desired).
+
+        Continuations may be used to implement various forms of multitasking. The simple "light-weight process" mechanism defined below allows multiple computations to be interleaved. 
+        Since it is nonpreemptive, it requires that each process voluntarily "pause" from time to time in order to allow the others to run.
+
+          (define lwp-list '())
+          (define lwp
+            (lambda (thunk)
+              (set! lwp-list (append lwp-list (list thunk))))) 
+
+          (define start
+            (lambda ()
+              (let ([p (car lwp-list)])
+                (set! lwp-list (cdr lwp-list))
+                (p))))
+
+          (define pause
+            (lambda ()
+              (call/cc
+                (lambda (k)
+                  (lwp (lambda () (k #f)))
+                  (start)))))
+
+
+
+
 
 
 
