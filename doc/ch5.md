@@ -892,6 +892,11 @@ Chapter 5. Control Operations
 
     Section 5.7. Delayed Evaluation
 
+      The syntactic form delay and the procedure force may be used in combination to implement lazy evaluation. 
+      An expression subject to lazy evaluation is not evaluated until its value is required 
+      and, once evaluated, is never reevaluated.
+
+
 
 
     Section 5.8. Multiple Values
