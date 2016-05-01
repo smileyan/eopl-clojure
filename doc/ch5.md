@@ -896,7 +896,33 @@ Chapter 5. Control Operations
       An expression subject to lazy evaluation is not evaluated until its value is required 
       and, once evaluated, is never reevaluated.
 
+      syntax: (delay expr) 
+      returns: a promise 
+      procedure: (force promise) 
+      returns: result of forcing promise 
+      libraries: (rnrs r5rs)
 
+      The first time a promise created by delay is forced (with force), it evaluates expr, "remembering" the resulting value. 
+      Thereafter, each time the promise is forced, it returns the remembered value instead of reevaluating expr.
+
+      delay and force are typically used only in the absence of side effects, e.g., assignments, so that the order of evaluation is unimportant.
+
+      The benefit of using delay and force is that some amount of computation might be avoided altogether if it is delayed until absolutely required. 
+      Delayed evaluation may be used to construct conceptually infinite lists, or streams. 
+      The example below shows how a stream abstraction may be built with delay and force. 
+      A stream is a promise that, when forced, returns a pair whose cdr is a stream.
+
+        (define stream-car
+          (lambda (s)
+            (car (force s)))) 
+
+        (define stream-cdr
+          (lambda (s)
+            (cdr (force s)))) 
+
+        (define counters
+          (let next ([n 1])
+            (delay (cons n (next (+ n 1)))))) 
 
 
     Section 5.8. Multiple Values
