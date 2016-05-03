@@ -960,9 +960,58 @@ Chapter 5. Control Operations
                       (set! set? #t))))
                 val))))
 
+        With this definition of delay, force simply invokes the promise to force evaluation or to retrieve the saved value.
+
+        (define force
+          (lambda (promise)
+            (promise)))
+
+        The second test of the variable set? in make-promise is necessary in the event that, 
+        as a result of applying p, the promise is recursively forced. 
+        Since a promise must always return the same value, the result of the first application of p to complete is returned.
+
+        Whether delay and force handle multiple return values is unspecified; 
+        the implementation given above does not, but the following version does, with the help of call-with-values and apply.
+
+        (define make-promise
+          (lambda (p)
+            (let ([vals #f] [set? #f])
+              (lambda ()
+                (unless set?
+                  (call-with-values p
+                    (lambda x
+                      (unless set?
+                        (set! vals x)
+                        (set! set? #t)))))
+                (apply values vals)))))
+        (define p (delay (values 1 2 3)))
+        (force p) <graphic> 1
+                            2
+                            3
+        (call-with-values (lambda () (force p)) +) <graphic> 6
+
+        Neither implementation is quite right, since force must raise an exception with condition type &assertion if its argument is not a promise. 
+        Since distinguishing procedures created by make-promise from other procedures is impossible, force cannot do so reliably. 
+        The following reimplementation of make-promise and force represents promises as records of the type promise to allow force to make the required check.
+
+        (define-record-type promise
+          (fields (immutable p) (mutable vals) (mutable set?))
+          (protocol (lambda (new) (lambda (p) (new p #f #f))))) 
+
+        (define force
+          (lambda (promise)
+            (unless (promise? promise)
+              (assertion-violation 'promise "invalid argument" promise))
+            (unless (promise-set? promise)
+              (call-with-values (promise-p promise)
+                (lambda x
+                  (unless (promise-set? promise)
+                    (promise-vals-set! promise x)
+                    (promise-set?-set! promise #t)))))
+            (apply values (promise-vals promise))))
+
+
     Section 5.8. Multiple Values
-
-
 
     Section 5.9. Eval
 
