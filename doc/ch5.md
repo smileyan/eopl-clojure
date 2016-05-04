@@ -882,14 +882,6 @@ Chapter 5. Control Operations
                   (lwp (lambda () (k #f)))
                   (start)))))
 
-
-
-
-
-
-
-
-
     Section 5.7. Delayed Evaluation
 
       The syntactic form delay and the procedure force may be used in combination to implement lazy evaluation. 
@@ -1010,8 +1002,48 @@ Chapter 5. Control Operations
                     (promise-set?-set! promise #t)))))
             (apply values (promise-vals promise))))
 
-
     Section 5.8. Multiple Values
+
+      While all Scheme primitives and most user-defined procedures return exactly one value, 
+      some programming problems are best solved by returning zero values, more than one value, or even a variable number of values. 
+      For example, a procedure that partitions a list of values into two sublists needs to return two values. 
+      While it is possible for the producer of multiple values to package them into a data structure and for the consumer to extract them, 
+      it is often cleaner to use the built-in multiple-values interface. 
+      This interface consists of two procedures: values and call-with-values. 
+      The former produces multiple values and the latter links procedures that produce multiple-value values with procedures that consume them.
+
+      procedure: (values obj ...) 
+      returns: obj ... 
+      libraries: (rnrs base), (rnrs)
+
+      The procedure values accepts any number of arguments and simply passes (returns) the arguments to its continuation.
+
+      (values) <graphic>
+
+      (values 1) <graphic> 1 
+
+      (values 1 2 3) <graphic> 1
+                      2
+                      3 
+
+      (define head&tail
+        (lambda (ls)
+          (values (car ls) (cdr ls)))) 
+
+      (head&tail '(a b c)) <graphic> a
+                            (b c)
+
+      procedure: (call-with-values producer consumer) 
+      returns: see below 
+      libraries: (rnrs base), (rnrs)
+
+      producer and consumer must be procedures. call-with-values applies consumer to the values returned by invoking producer without arguments.
+
+      (call-with-values
+        (lambda () (values 'bond 'james))
+        (lambda (x y) (cons y x))) <graphic> (james . bond) 
+
+      (call-with-values values list) <graphic> '()
 
     Section 5.9. Eval
 
