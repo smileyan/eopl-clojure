@@ -1045,6 +1045,51 @@ Chapter 5. Control Operations
 
       (call-with-values values list) <graphic> '()
 
+      In the second example, values itself serves as the producer. It receives no arguments and thus returns no values. list is thus applied to no arguments and so returns the empty list.
+
+      The procedure dxdy defined below computes the change in x and y coordinates for a pair of points whose coordinates are represented by (x . y) pairs.
+
+      (define dxdy
+        (lambda (p1 p2)
+          (values (- (car p2) (car p1))
+                  (- (cdr p2) (cdr p1))))) 
+
+      (dxdy '(0 . 0) '(0 . 5)) <graphic> 0
+                                         5
+
+      dxdy can be used to compute the length and slope of a segment represented by two endpoints.
+
+      (define segment-length
+        (lambda (p1 p2)
+          (call-with-values
+            (lambda () (dxdy p1 p2))
+            (lambda (dx dy) (sqrt (+ (* dx dx) (* dy dy))))))) 
+
+      (define segment-slope
+        (lambda (p1 p2)
+          (call-with-values
+            (lambda () (dxdy p1 p2))
+            (lambda (dx dy) (/ dy dx))))) 
+
+      (segment-length '(1 . 4) '(4 . 8)) <graphic> 5
+      (segment-slope '(1 . 4) '(4 . 8)) <graphic> 4/3
+
+      We can of course combine these to form one procedure that returns two values.
+
+      (define describe-segment
+        (lambda (p1 p2)
+          (call-with-values
+            (lambda () (dxdy p1 p2))
+            (lambda (dx dy)
+              (values
+                (sqrt (+ (* dx dx) (* dy dy)))
+                (/ dy dx)))))) 
+
+      (describe-segment '(1 . 4) '(4 . 8)) <graphic> 5
+                                           <graphic> 4/3
+
+
+
     Section 5.9. Eval
 
 
