@@ -1088,7 +1088,22 @@ Chapter 5. Control Operations
       (describe-segment '(1 . 4) '(4 . 8)) <graphic> 5
                                            <graphic> 4/3
 
+      The example below employs multiple values to divide a list nondestructively into two sublists of alternating elements.
 
+      (define split
+        (lambda (ls)
+          (if (or (null? ls) (null? (cdr ls)))
+              (values ls '())
+              (call-with-values
+                (lambda () (split (cddr ls)))
+                (lambda (odds evens)
+                  (values (cons (car ls) odds)
+                          (cons (cadr ls) evens))))))) 
+
+      (split '(a b c d e f)) <graphic> (a c e)
+                                       (b d f)
+
+      At each level of recursion, the procedure split returns two values: a list of the odd-numbered elements from the argument list and a list of the even-numbered elements.
 
     Section 5.9. Eval
 
