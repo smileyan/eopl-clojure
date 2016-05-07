@@ -1105,6 +1105,64 @@ Chapter 5. Control Operations
 
       At each level of recursion, the procedure split returns two values: a list of the odd-numbered elements from the argument list and a list of the even-numbered elements.
 
+      The continuation of a call to values need not be one established by a call to call-with-values, 
+      nor must only values be used to return to a continuation established by call-with-values. 
+      In particular, (values e) and e are equivalent expressions. For example:
+
+      (+ (values 2) 4) <graphic> 6 
+
+      (if (values #t) 1 2) <graphic> 1
+
+      (call-with-values
+        (lambda () 4)
+        (lambda (x) x)) <graphic> 4
+
+      Similarly, values may be used to pass any number of values to a continuation that ignores the values, as in the following.
+
+      (begin (values 1 2 3) 4) <graphic> 4
+
+      Because a continuation may accept zero or more than one value, continuations obtained via call/cc may accept zero or more than one argument.
+
+      (call-with-values
+        (lambda ()
+          (call/cc (lambda (k) (k 2 3))))
+        (lambda (x y) (list x y))) <graphic> (2 3)
+
+      The behavior is unspecified when a continuation expecting exactly one value receives zero values or more than one value. 
+      For example, the behavior of each of the following expressions is unspecified. 
+      Some implementations raise an exception, while others silently suppress additional values or supply defaults for missing values.
+
+      (if (values 1 2) 'x 'y) 
+
+      (+ (values) 5)
+
+      Programs that wish to force extra values to be ignored in particular contexts can do so easily by calling call-with-values explicitly. 
+      A syntactic form, which we might call first, can be defined to abstract the discarding of more than one value when only one is desired.
+
+      (define-syntax first
+        (syntax-rules ()
+          [(_ expr)
+           (call-with-values
+             (lambda () expr)
+             (lambda (x . y) x))])) 
+
+      (if (first (values #t #f)) 'a 'b) <graphic> a
+
+      Since implementations are required to raise an exception with condition type &assertion 
+      if a procedure does not accept the number of arguments passed to it, each of the following raises an exception.
+
+      (call-with-values
+        (lambda () (values 2 3 4))
+        (lambda (x y) x)) 
+
+      (call-with-values
+        (lambda () (call/cc (lambda (k) (k 0))))
+        (lambda (x y) x))
+
+      Since producer is most often a lambda expression, it is often convenient to use a syntactic extension that suppresses the lambda expression in the interest of readability.
+
+
+
     Section 5.9. Eval
 
 
