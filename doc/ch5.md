@@ -1161,7 +1161,37 @@ Chapter 5. Control Operations
 
       Since producer is most often a lambda expression, it is often convenient to use a syntactic extension that suppresses the lambda expression in the interest of readability.
 
+      (define-syntax with-values
+        (syntax-rules ()
+          [(_ expr consumer)
+           (call-with-values (lambda () expr) consumer)])) 
 
+      (with-values (values 1 2) list) <graphic> (1 2)
+      (with-values (split '(1 2 3 4))
+        (lambda (odds evens)
+          evens)) <graphic> (2 4)
+
+      If the consumer is also a lambda expression, the multiple-value variants of let and let* described in Section 4.5 are usually even more convenient.
+
+      (let-values ([(odds evens) (split '(1 2 3 4))])
+        evens) <graphic> (2 4) 
+
+      (let-values ([ls (values 'a 'b 'c)])
+        ls) <graphic> (a b c)
+
+      Many standard syntactic forms and procedures pass along multiple values. 
+      Most of these are "automatic," in the sense that nothing special must be done by the implementation to make this happen. 
+      The usual expansion of let into a direct lambda call automatically propagates multiple values produced by the body of the let. 
+      Other operators must be coded specially to pass along multiple values. 
+      The call-with-port procedure (page 7.6), for example, calls its procedure argument, 
+      then closes the port argument before returning the procedure's values, so it must save the values temporarily. 
+      This is easily accomplished via let-values, apply, and values:
+
+      (define call-with-port
+        (lambda (port proc)
+          (let-values ([val* (proc port)])
+            (close-port port)
+            (apply values val*))))
 
     Section 5.9. Eval
 
