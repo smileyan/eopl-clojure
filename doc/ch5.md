@@ -1193,6 +1193,55 @@ Chapter 5. Control Operations
             (close-port port)
             (apply values val*))))
 
+      If this seems like too much overhead when a single value is returned, the code can use call-with-values and case-lambda to handle the single-value case more efficiently:
+
+      (define call-with-port
+        (lambda (port proc)
+          (call-with-values (lambda () (proc port))
+            (case-lambda
+              [(val) (close-port port) val]
+              [val* (close-port port) (apply values val*)]))))
+
+      The definitions of values and call-with-values (and concomitant redefinition of call/cc) in the library below demonstrate that 
+      the multiple-return-values interface could be implemented in Scheme if it were not already built in. 
+      No error checking can be done, however, for the case in which more than one value is returned to a single-value context, such as the test part of an if expression.
+
+      (library (mrvs)
+        (export call-with-values values call/cc
+          (rename (call/cc call-with-current-continuation)))
+        (import
+          (rename
+            (except (rnrs) values call-with-values)
+            (call/cc rnrs:call/cc))) 
+
+        (define magic (cons 'multiple 'values)) 
+
+        (define magic?
+          (lambda (x)
+            (and (pair? x) (eq? (car x) magic))))
+
+        (define call/cc
+          (lambda (p)
+            (rnrs:call/cc
+              (lambda (k)
+                (p (lambda args
+                     (k (apply values args)))))))) 
+
+        (define values
+          (lambda args
+            (if (and (not (null? args)) (null? (cdr args)))
+                (car args)
+                (cons magic args)))) 
+
+        (define call-with-values
+          (lambda (producer consumer)
+            (let ([x (producer)])
+              (if (magic? x)
+                  (apply consumer (cdr x))
+                  (consumer x))))))
+
+      Multiple values can be implemented more efficiently [2], but this code serves to illustrate the meanings of the operators and may be used to provide multiple values in older, nonstandard implementations that do not support them.
+
     Section 5.9. Eval
 
 
