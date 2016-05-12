@@ -100,6 +100,77 @@ Chapter 6. Operations on Objects
     unquote and unquote-splicing are auxiliary keywords for quasiquote. 
     It is a syntax violation to reference these identifiers except in contexts where they are recognized as auxiliary keywords.
 
+  Section 6.2. Generic Equivalence and Type Predicates
+
+    This section describes the basic Scheme predicates (procedures returning one of the boolean values #t or #f) for determining the type of an object or the equivalence of two objects. 
+    The equivalence predicates eq?, eqv?, and equal? are discussed first, followed by the type predicates.
+
+    procedure: (eq? obj1 obj2) 
+    returns: #t if obj1 and obj2 are identical, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    In most Scheme systems, two objects are considered identical if they are represented internally by the same pointer value and 
+    distinct (not identical) if they are represented internally by different pointer values, although other criteria, such as time-stamping, are possible.
+
+    Although the particular rules for object identity vary somewhat from system to system, the following rules always hold.
+
+      Two objects of different types (booleans, the empty list, pairs, numbers, characters, strings, vectors, symbols, and procedures) are distinct.
+      
+      Two objects of the same type with different contents or values are distinct.
+      
+      The boolean object #t is identical to itself wherever it appears, and #f is identical to itself wherever it appears, but #t and #f are distinct.
+      
+      The empty list () is identical to itself wherever it appears.
+      
+      Two symbols are identical if and only if they have the same name (by string=?).
+      
+      A constant pair, vector, string, or bytevector is identical to itself, 
+      as is a pair, vector, string, or bytevector created by an application of cons, vector, string, make-bytevector, etc. 
+      Two pairs, vectors, strings, or bytevectors created by different applications of cons, vector, string, make-bytevector, etc., are distinct. 
+      One consequence is that cons, for example, may be used to create a unique object distinct from all other objects.
+      
+      Two procedures that may behave differently are distinct. A procedure created by an evaluation of a lambda expression is identical to itself. 
+      Two procedures created by the same lambda expression at different times, or by similar lambda expressions, may or may not be distinct.
+
+    eq? cannot be used to compare numbers and characters reliably. 
+    Although every inexact number is distinct from every exact number, two exact numbers, two inexact numbers, or two characters with the same value may or may not be identical.
+
+    Since constant objects are immutable, i.e., programs should not modify them via vector-set!, set-car!, or any other structure mutation operation, 
+    all or portions of different quoted constants or self-evaluating literals may be represented internally by the same object. 
+    Thus, eq? may return #t when applied to equal parts of different immutable constants.
+
+    eq? is most often used to compare symbols or to check for pointer equivalence of allocated objects, e.g., pairs, vectors, or record instances.
+
+    (eq? 'a 3) <graphic> #f
+    (eq? #t 't) <graphic> #f
+    (eq? "abc" 'abc) <graphic> #f
+    (eq? "hi" '(hi)) <graphic> #f
+    (eq? #f '()) <graphic> #f 
+
+    (eq? 9/2 7/2) <graphic> #f
+    (eq? 3.4 53344) <graphic> #f
+    (eq? 3 3.0) <graphic> #f
+    (eq? 1/3 #i1/3) <graphic> #f 
+
+    (eq? 9/2 9/2) <graphic> unspecified
+    (eq? 3.4 (+ 3.0 .4)) <graphic> unspecified
+    (let ([x (* 12345678987654321 2)])
+      (eq? x x)) <graphic> unspecified 
+
+    (eq? #\a #\b) <graphic> #f
+    (eq? #\a #\a) <graphic> unspecified
+    (let ([x (string-ref "hi" 0)])
+      (eq? x x)) <graphic> unspecified 
+
+    (eq? #t #t) <graphic> #t
+    (eq? #f #f) <graphic> #t
+    (eq? #t #f) <graphic> #f
+    (eq? (null? '()) #t) <graphic> #t
+    (eq? (null? '(a)) #f) <graphic> #t 
+
+
+
+
 
 
 
