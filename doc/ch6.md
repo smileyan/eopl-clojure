@@ -168,8 +168,57 @@ Chapter 6. Operations on Objects
     (eq? (null? '()) #t) <graphic> #t
     (eq? (null? '(a)) #f) <graphic> #t 
 
+    (eq? (cdr '(a)) '()) <graphic> #t 
 
+    (eq? 'a 'a) <graphic> #t
+    (eq? 'a 'b) <graphic> #f
+    (eq? 'a (string->symbol "a")) <graphic> #t 
 
+    (eq? '(a) '(b)) <graphic> #f
+    (eq? '(a) '(a)) <graphic> unspecified
+    (let ([x '(a . b)]) (eq? x x)) <graphic> #t
+    (let ([x (cons 'a 'b)])
+      (eq? x x)) <graphic> #t
+    (eq? (cons 'a 'b) (cons 'a 'b)) <graphic> #f 
+
+    (eq? "abc" "cba") <graphic> #f
+    (eq? "abc" "abc") <graphic> unspecified
+    (let ([x "hi"]) (eq? x x)) <graphic> #t
+    (let ([x (string #\h #\i)]) (eq? x x)) <graphic> #t
+    (eq? (string #\h #\i)
+         (string #\h #\i)) <graphic> #f 
+
+    (eq? '#vu8(1) '#vu8(1)) <graphic> unspecified
+    (eq? '#vu8(1) '#vu8(2)) <graphic> #f
+    (let ([x (make-bytevector 10 0)])
+      (eq? x x)) <graphic> #t
+    (let ([x (make-bytevector 10 0)])
+      (eq? x (make-bytevector 10 0))) <graphic> #f 
+
+    (eq? '#(a) '#(b)) <graphic> #f
+    (eq? '#(a) '#(a)) <graphic> unspecified
+    (let ([x '#(a)]) (eq? x x)) <graphic> #t
+    (let ([x (vector 'a)])
+      (eq? x x)) <graphic> #t
+    (eq? (vector 'a) (vector 'a)) <graphic> #f 
+
+    (eq? car car) <graphic> #t
+    (eq? car cdr) <graphic> #f
+    (let ([f (lambda (x) x)])
+      (eq? f f)) <graphic> #t
+    (let ([f (lambda () (lambda (x) x))])
+      (eq? (f) (f))) <graphic> unspecified
+    (eq? (lambda (x) x) (lambda (y) y)) <graphic> unspecified 
+
+    (let ([f (lambda (x)
+               (lambda ()
+                 (set! x (+ x 1))
+                 x))])
+      (eq? (f 0) (f 0))) <graphic> #f
+
+    procedure: (eqv? obj1 obj2) 
+    returns: #t if obj1 and obj2 are equivalent, #f otherwise 
+    libraries: (rnrs base), (rnrs)
 
 
 
