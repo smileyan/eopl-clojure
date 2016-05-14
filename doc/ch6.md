@@ -220,6 +220,43 @@ Chapter 6. Operations on Objects
     returns: #t if obj1 and obj2 are equivalent, #f otherwise 
     libraries: (rnrs base), (rnrs)
 
+    eqv? is similar to eq? except eqv? is guaranteed to return #t for two characters 
+    that are considered equal by char=? and two numbers that are 
+    (a) considered equal by = and (b) cannot be distinguished by any other operation besides eq? and eqv?.
+    A consequence of (b) is that (eqv? -0.0 +0.0) is #f even though (= -0.0 +0.0) is #t in systems 
+    that distinguish -0.0 and +0.0, such as those based on IEEE floating-point arithmetic. 
+    This is because operations such as / can expose the difference:
+
+    (/ 1.0 -0.0) <graphic> -inf.0
+    (/ 1.0 +0.0) <graphic> +inf.0
+
+    Similarly, although 3.0 and 3.0+0.0i are considered numerically equal, 
+    they are not considered equivalent by eqv? if -0.0 and 0.0 have different representations.
+
+    (= 3.0+0.0i 3.0) <graphic> #t
+    (eqv? 3.0+0.0i 3.0) <graphic> #f
+
+    The boolean value returned by eqv? is not specified when the arguments are NaNs.
+
+    (eqv? +nan.0 (/ 0.0 0.0)) <graphic> unspecified
+
+    eqv? is less implementation-dependent but generally more expensive than eq?.
+
+    (eqv? 'a 3) <graphic> #f
+    (eqv? #t 't) <graphic> #f
+    (eqv? "abc" 'abc) <graphic> #f
+    (eqv? "hi" '(hi)) <graphic> #f
+    (eqv? #f '()) <graphic> #f 
+
+    (eqv? 9/2 7/2) <graphic> #f
+    (eqv? 3.4 53344) <graphic> #f
+    (eqv? 3 3.0) <graphic> #f
+    (eqv? 1/3 #i1/3) <graphic> #f 
+
+    (eqv? 9/2 9/2) <graphic> #t
+    (eqv? 3.4 (+ 3.0 .4)) <graphic> #t
+    (let ([x (* 12345678987654321 2)])
+      (eqv? x x)) <graphic> #t 
 
 
 
