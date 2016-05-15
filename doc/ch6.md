@@ -258,6 +258,63 @@ Chapter 6. Operations on Objects
     (let ([x (* 12345678987654321 2)])
       (eqv? x x)) <graphic> #t 
 
+    (eqv? #\a #\b) <graphic> #f
+    (eqv? #\a #\a) <graphic> #t
+    (let ([x (string-ref "hi" 0)])
+      (eqv? x x)) <graphic> #t 
 
+    (eqv? #t #t) <graphic> #t
+    (eqv? #f #f) <graphic> #t
+    (eqv? #t #f) <graphic> #f
+    (eqv? (null? '()) #t) <graphic> #t
+    (eqv? (null? '(a)) #f) <graphic> #t 
+
+    (eqv? (cdr '(a)) '()) <graphic> #t 
+
+    (eqv? 'a 'a) <graphic> #t
+    (eqv? 'a 'b) <graphic> #f
+    (eqv? 'a (string->symbol "a")) <graphic> #t 
+
+    (eqv? '(a) '(b)) <graphic> #f
+    (eqv? '(a) '(a)) <graphic> unspecified
+    (let ([x '(a . b)]) (eqv? x x)) <graphic> #t
+    (let ([x (cons 'a 'b)])
+      (eqv? x x)) <graphic> #t
+    (eqv? (cons 'a 'b) (cons 'a 'b)) <graphic> #f 
+
+    (eqv? "abc" "cba") <graphic> #f
+    (eqv? "abc" "abc") <graphic> unspecified
+    (let ([x "hi"]) (eqv? x x)) <graphic> #t
+    (let ([x (string #\h #\i)]) (eqv? x x)) <graphic> #t
+    (eqv? (string #\h #\i)
+          (string #\h #\i)) <graphic> #f 
+
+    (eqv? '#vu8(1) '#vu8(1)) <graphic> unspecified
+    (eqv? '#vu8(1) '#vu8(2)) <graphic> #f
+    (let ([x (make-bytevector 10 0)])
+      (eqv? x x)) <graphic> #t
+    (let ([x (make-bytevector 10 0)])
+      (eqv? x (make-bytevector 10 0))) <graphic> #f 
+
+    (eqv? '#(a) '#(b)) <graphic> #f
+    (eqv? '#(a) '#(a)) <graphic> unspecified
+    (let ([x '#(a)]) (eqv? x x)) <graphic> #t
+    (let ([x (vector 'a)])
+      (eqv? x x)) <graphic> #t
+    (eqv? (vector 'a) (vector 'a)) <graphic> #f 
+
+    (eqv? car car) <graphic> #t
+    (eqv? car cdr) <graphic> #f
+    (let ([f (lambda (x) x)])
+      (eqv? f f)) <graphic> #t
+    (let ([f (lambda () (lambda (x) x))])
+      (eqv? (f) (f))) <graphic> unspecified
+    (eqv? (lambda (x) x) (lambda (y) y)) <graphic> unspecified 
+
+    (let ([f (lambda (x)
+               (lambda ()
+                 (set! x (+ x 1))
+                 x))])
+    (eqv? (f 0) (f 0))) <graphic> #f
 
 
