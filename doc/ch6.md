@@ -317,4 +317,101 @@ Chapter 6. Operations on Objects
                  x))])
     (eqv? (f 0) (f 0))) <graphic> #f
 
+  procedure: (equal? obj1 obj2) 
+  returns: #t if obj1 and obj2 have the same structure and contents, #f otherwise 
+  libraries: (rnrs base), (rnrs)
+
+    Two objects are equal if they are equivalent according to eqv?, strings that are string=?, bytevectors that are bytevector=?, pairs whose cars and cdrs are equal, or 
+    vectors of the same length whose corresponding elements are equal.
+
+    equal? is required to terminate even for cyclic arguments and return #t "if and only if the (possibly infinite) unfoldings of its arguments into regular trees are equal as ordered trees" [24]. 
+    In essence, two values are equivalent, in the sense of equal?, if the structure of the two objects cannot be distinguished 
+    by any composition of pair and vector accessors along with the eqv?, string=?, and bytevector=? procedures for comparing data at the leaves.
+
+    Implementing equal? efficiently is tricky [1], and even with a good implementation, it is likely to be more expensive than either eqv? or eq?.
+
+    (equal? 'a 3) <graphic> #f
+    (equal? #t 't) <graphic> #f
+    (equal? "abc" 'abc) <graphic> #f
+    (equal? "hi" '(hi)) <graphic> #f
+    (equal? #f '()) <graphic> #f 
+
+    (equal? 9/2 7/2) <graphic> #f
+    (equal? 3.4 53344) <graphic> #f
+    (equal? 3 3.0) <graphic> #f
+    (equal? 1/3 #i1/3) <graphic> #f 
+
+    (equal? 9/2 9/2) <graphic> #t
+    (equal? 3.4 (+ 3.0 .4)) <graphic> #t
+    (let ([x (* 12345678987654321 2)])
+      (equal? x x)) <graphic> #t 
+
+    (equal? #\a #\b) <graphic> #f
+    (equal? #\a #\a) <graphic> #t
+    (let ([x (string-ref "hi" 0)])
+      (equal? x x)) <graphic> #t 
+
+    (equal? #t #t) <graphic> #t
+    (equal? #f #f) <graphic> #t
+    (equal? #t #f) <graphic> #f
+    (equal? (null? '()) #t) <graphic> #t
+    (equal? (null? '(a)) #f) <graphic> #t 
+
+    (equal? (cdr '(a)) '()) <graphic> #t 
+
+    (equal? 'a 'a) <graphic> #t
+    (equal? 'a 'b) <graphic> #f
+    (equal? 'a (string->symbol "a")) <graphic> #t 
+
+    (equal? '(a) '(b)) <graphic> #f
+    (equal? '(a) '(a)) <graphic> #t
+    (let ([x '(a . b)]) (equal? x x)) <graphic> #t
+    (let ([x (cons 'a 'b)])
+      (equal? x x)) <graphic> #t
+    (equal? (cons 'a 'b) (cons 'a 'b)) <graphic> #t 
+
+    (equal? "abc" "cba") <graphic> #f
+    (equal? "abc" "abc") <graphic> #t
+    (let ([x "hi"]) (equal? x x)) <graphic> #t
+    (let ([x (string #\h #\i)]) (equal? x x)) <graphic> #t
+    (equal? (string #\h #\i)
+            (string #\h #\i)) <graphic> #t 
+
+    (equal? '#vu8(1) '#vu8(1)) <graphic> #t
+    (equal? '#vu8(1) '#vu8(2)) <graphic> #f
+    (let ([x (make-bytevector 10 0)])
+      (equal? x x)) <graphic> #t
+    (let ([x (make-bytevector 10 0)])
+      (equal? x (make-bytevector 10 0))) <graphic> #t 
+
+    (equal? '#(a) '#(b)) <graphic> #f
+    (equal? '#(a) '#(a)) <graphic> #t
+    (let ([x '#(a)]) (equal? x x)) <graphic> #t
+    (let ([x (vector 'a)])
+      (equal? x x)) <graphic> #t
+    (equal? (vector 'a) (vector 'a)) <graphic> #t 
+
+    (equal? car car) <graphic> #t
+    (equal? car cdr) <graphic> #f
+    (let ([f (lambda (x) x)])
+      (equal? f f)) <graphic> #t
+    (let ([f (lambda () (lambda (x) x))])
+      (equal? (f) (f))) <graphic> unspecified
+    (equal? (lambda (x) x) (lambda (y) y)) <graphic> unspecified 
+
+    (let ([f (lambda (x)
+             (lambda ()
+               (set! x (+ x 1))
+               x))])
+    (equal? (f 0) (f 0))) <graphic> #f 
+
+    (equal?
+      (let ([x (cons 'x 'x)])
+        (set-car! x x)
+        (set-cdr! x x)
+        x)
+      (let ([x (cons 'x 'x)])
+        (set-car! x x)
+        (set-cdr! x x)
+        (cons x x))) <graphic> #t
 
