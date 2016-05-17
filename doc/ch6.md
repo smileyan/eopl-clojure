@@ -415,3 +415,216 @@ Chapter 6. Operations on Objects
         (set-cdr! x x)
         (cons x x))) <graphic> #t
 
+    procedure: (boolean? obj) 
+    returns: #t if obj is either #t or #f, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    boolean? is equivalent to (lambda (x) (or (eq? x #t) (eq? x #f))).
+
+    (boolean? #t) <graphic> #t
+    (boolean? #f) <graphic> #t
+    (or (boolean? 't) (boolean? '())) <graphic> #f
+
+    procedure: (null? obj) 
+    returns: #t if obj is the empty list, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    null? is equivalent to (lambda (x) (eq? x '())).
+
+    (null? '()) <graphic> #t
+    (null? '(a)) <graphic> #f
+    (null? (cdr '(a))) <graphic> #t
+    (null? 3) <graphic> #f
+    (null? #f) <graphic> #f
+
+    procedure: (pair? obj) 
+    returns: #t if obj is a pair, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    (pair? '(a b c)) <graphic> #t
+    (pair? '(3 . 4)) <graphic> #t
+    (pair? '()) <graphic> #f
+    (pair? '#(a b)) <graphic> #f
+    (pair? 3) <graphic> #f
+
+    procedure: (number? obj) 
+    returns: #t if obj is a number object, #f otherwise 
+    procedure: (complex? obj) 
+    returns: #t if obj is a complex number object, #f otherwise 
+    procedure: (real? obj) 
+    returns: #t if obj is a real number object, #f otherwise 
+    procedure: (rational? obj) 
+    returns: #t if obj is a rational number object, #f otherwise 
+    procedure: (integer? obj) 
+    returns: #t if obj is an integer object, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    These predicates form a hierarchy: any integer is rational, any rational is real, any real is complex, and any complex is numeric. 
+    Most implementations do not provide internal representations for irrational numbers, so all real numbers are typically rational as well.
+
+    The real?, rational?, and integer? predicates do not recognize as real, rational, or integer complex numbers with inexact zero imaginary parts.
+
+    (integer? 1901) <graphic> #t
+    (rational? 1901) <graphic> #t
+    (real? 1901) <graphic> #t
+    (complex? 1901) <graphic> #t
+    (number? 1901) <graphic> #t 
+
+    (integer? -3.0) <graphic> #t
+    (rational? -3.0) <graphic> #t
+    (real? -3.0) <graphic> #t
+    (complex? -3.0) <graphic> #t
+    (number? -3.0) <graphic> #t 
+
+    (integer? 7+0i) <graphic> #t
+    (rational? 7+0i) <graphic> #t
+    (real? 7+0i) <graphic> #t
+    (complex? 7+0i) <graphic> #t
+    (number? 7+0i) <graphic> #t 
+
+    (integer? -2/3) <graphic> #f
+    (rational? -2/3) <graphic> #t
+    (real? -2/3) <graphic> #t
+    (complex? -2/3) <graphic> #t
+    (number? -2/3) <graphic> #t 
+
+    (integer? -2.345) <graphic> #f
+    (rational? -2.345) <graphic> #t
+    (real? -2.345) <graphic> #t
+    (complex? -2.345) <graphic> #t
+    (number? -2.345) <graphic> #t 
+
+    (integer? 7.0+0.0i) <graphic> #f
+    (rational? 7.0+0.0i) <graphic> #f
+    (real? 7.0+0.0i) <graphic> #f
+    (complex? 7.0+0.0i) <graphic> #t
+    (number? 7.0+0.0i) <graphic> #t 
+
+    (integer? 3.2-2.01i) <graphic> #f
+    (rational? 3.2-2.01i) <graphic> #f
+    (real? 3.2-2.01i) <graphic> #f
+    (complex? 3.2-2.01i) <graphic> #t
+    (number? 3.2-2.01i) <graphic> #t 
+
+    (integer? 'a) <graphic> #f
+    (rational? '(a b c)) <graphic> #f
+    (real? "3") <graphic> #f
+    (complex? '#(1 2)) <graphic> #f
+    (number? #\a) <graphic> #f
+
+    procedure: (real-valued? obj) 
+    returns: #t if obj is a real number, #f otherwise 
+    procedure: (rational-valued? obj) 
+    returns: #t if obj is a rational number, #f otherwise 
+    procedure: (integer-valued? obj) 
+    returns: #t if obj is an integer, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    These predicates are similar to real?, rational?, and integer?, but treat as real, rational, or integral complex numbers with inexact zero imaginary parts.
+
+    (integer-valued? 1901) <graphic> #t
+    (rational-valued? 1901) <graphic> #t
+    (real-valued? 1901) <graphic> #t 
+
+    (integer-valued? -3.0) <graphic> #t
+    (rational-valued? -3.0) <graphic> #t
+    (real-valued? -3.0) <graphic> #t 
+
+    (integer-valued? 7+0i) <graphic> #t
+    (rational-valued? 7+0i) <graphic> #t
+    (real-valued? 7+0i) <graphic> #t 
+
+    (integer-valued? -2/3) <graphic> #f
+    (rational-valued? -2/3) <graphic> #t
+    (real-valued? -2/3) <graphic> #t 
+
+    (integer-valued? -2.345) <graphic> #f
+    (rational-valued? -2.345) <graphic> #t
+    (real-valued? -2.345) <graphic> #t 
+
+    (integer-valued? 7.0+0.0i) <graphic> #t
+    (rational-valued? 7.0+0.0i) <graphic> #t
+    (real-valued? 7.0+0.0i) <graphic> #t 
+
+    (integer-valued? 3.2-2.01i) <graphic> #f
+    (rational-valued? 3.2-2.01i) <graphic> #f
+    (real-valued? 3.2-2.01i) <graphic> #f
+
+    As with real?, rational?, and integer?, these predicates return #f for all non-numeric values.
+
+    (integer-valued? 'a) <graphic> #f
+    (rational-valued? '(a b c)) <graphic> #f
+    (real-valued? "3") <graphic> #f
+
+    procedure: (char? obj) 
+    returns: #t if obj is a character, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    (char? 'a) <graphic> #f
+    (char? 97) <graphic> #f
+    (char? #\a) <graphic> #t
+    (char? "a") <graphic> #f
+    (char? (string-ref (make-string 1) 0)) <graphic> #t
+
+    procedure: (string? obj) 
+    returns: #t if obj is a string, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    (string? "hi") <graphic> #t
+    (string? 'hi) <graphic> #f
+    (string? #\h) <graphic> #f
+
+    procedure: (vector? obj) 
+    returns: #t if obj is a vector, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    (vector? '#()) <graphic> #t
+    (vector? '#(a b c)) <graphic> #t
+    (vector? (vector 'a 'b 'c)) <graphic> #t
+    (vector? '()) <graphic> #f
+    (vector? '(a b c)) <graphic> #f
+    (vector? "abc") <graphic> #f
+
+    procedure: (symbol? obj) 
+    returns: #t if obj is a symbol, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    (symbol? 't) <graphic> #t
+    (symbol? "t") <graphic> #f
+    (symbol? '(t)) <graphic> #f
+    (symbol? #\t) <graphic> #f
+    (symbol? 3) <graphic> #f
+    (symbol? #t) <graphic> #f
+
+    procedure: (procedure? obj) 
+    returns: #t if obj is a procedure, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    (procedure? car) <graphic> #t
+    (procedure? 'car) <graphic> #f
+    (procedure? (lambda (x) x)) <graphic> #t
+    (procedure? '(lambda (x) x)) <graphic> #f
+    (call/cc procedure?) <graphic> #t
+
+    procedure: (bytevector? obj) 
+    returns: #t if obj is a bytevector, #f otherwise 
+    libraries: (rnrs bytevectors), (rnrs)
+
+    (bytevector? #vu8()) <graphic> #t
+    (bytevector? '#()) <graphic> #f
+    (bytevector? "abc") <graphic> #f
+
+    procedure: (hashtable? obj) 
+    returns: #t if obj is a hashtable, #f otherwise 
+    libraries: (rnrs hashtables), (rnrs)
+
+    (hashtable? (make-eq-hashtable)) <graphic> #t
+    (hashtable? '(not a hash table)) <graphic> #f
+
+  Section 6.3. Lists and Pairs
+
+
+
+
+
+
