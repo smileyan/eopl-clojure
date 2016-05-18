@@ -623,6 +623,94 @@ Chapter 6. Operations on Objects
 
   Section 6.3. Lists and Pairs
 
+    The pair, or cons cell, is the most fundamental of Scheme's structured object types. 
+    The most common use for pairs is to build lists, which are ordered sequences of pairs linked one to the next by the cdr field. 
+    The elements of the list occupy the car fields of the pairs. The cdr of the last pair in a proper list is the empty list, (); the cdr of the last pair in an improper list can be anything other than ().
+
+    Pairs may be used to construct binary trees. Each pair in the tree structure is an internal node of the binary tree; its car and cdr are the children of the node.
+
+    Proper lists are printed as sequences of objects separated by whitespace and enclosed in parentheses. 
+    Matching pairs of brackets ( [ ] ) may be used in place of parentheses. For example, (1 2 3) and (a [nested list]) are proper lists. The empty list is written as ().
+
+    Improper lists and trees require a slightly more complex syntax. 
+    A single pair is written as two objects separated by whitespace and a dot, e.g., (a . b). This is referred to as dotted-pair notation. 
+    Improper lists and trees are also written in dotted-pair notation; the dot appears wherever necessary, e.g., (1 2 3 . 4) or ((1 . 2) . 3). 
+    Proper lists may be written in dotted-pair notation as well. For example, (1 2 3) may be written as (1 . (2 . (3 . ()))).
+
+    It is possible to create a circular list or a cyclic graph by destructively altering the car or cdr field of a pair, using set-car! or set-cdr!. Such lists are not considered proper lists.
+
+    Procedures that accept a list argument are required to detect that the list is improper only to the extent that they actually traverse the list far enough either 
+    (a) to attempt to operate on a non-list tail or 
+    (b) to loop indefinitely due to a circularity. 
+    For example, member need not detect that a list is improper if it actually finds the element being sought, 
+    and list-ref need never detect circularities, because its recursion is bounded by the index argument.
+
+    procedure: (cons obj1 obj2) 
+    returns: a new pair whose car and cdr are obj1 and obj2 
+    libraries: (rnrs base), (rnrs)
+
+    cons is the pair constructor procedure. obj1 becomes the car and obj2 becomes the cdr of the new pair.
+
+    (cons 'a '()) <graphic> (a)
+    (cons 'a '(b c)) <graphic> (a b c)
+    (cons 3 4) <graphic> (3 . 4)
+
+    procedure: (car pair) 
+    returns: the car of pair 
+    libraries: (rnrs base), (rnrs)
+
+    The empty list is not a pair, so the argument must not be the empty list.
+
+    (car '(a)) <graphic> a
+    (car '(a b c)) <graphic> a
+    (car (cons 3 4)) <graphic> 3
+
+    procedure: (cdr pair) 
+    returns: the cdr of pair 
+    libraries: (rnrs base), (rnrs)
+
+    The empty list is not a pair, so the argument must not be the empty list.
+
+    (cdr '(a)) <graphic> ()
+    (cdr '(a b c)) <graphic> (b c)
+    (cdr (cons 3 4)) <graphic> 4
+
+    procedure: (set-car! pair obj) 
+    returns: unspecified 
+    libraries: (rnrs mutable-pairs)
+
+    set-car! changes the car of pair to obj.
+
+    (let ([x (list 'a 'b 'c)])
+      (set-car! x 1)
+      x) <graphic> (1 b c)
+
+    procedure: (set-cdr! pair obj) 
+    returns: unspecified 
+    libraries: (rnrs mutable-pairs)
+
+    set-cdr! changes the cdr of pair to obj.
+
+    (let ([x (list 'a 'b 'c)])
+      (set-cdr! x 1)
+      x) <graphic> (a . 1)
+
+    procedure: (caar pair) 
+    procedure: (cadr pair)  <graphic> 
+    procedure: (cddddr pair) 
+    returns: the caar, cadr, ..., or cddddr of pair 
+    libraries: (rnrs base), (rnrs)
+
+    These procedures are defined as the composition of up to four cars and cdrs. The a's and d's between the c and r represent the application of car or cdr in order from right to left. 
+    For example, the procedure cadr applied to a pair yields the car of the cdr of the pair and is equivalent to (lambda (x) (car (cdr x))).
+
+    (caar '((a))) <graphic> a
+    (cadr '(a b c)) <graphic> b
+    (cdddr '(a b c d)) <graphic> (d)
+    (cadadr '(a (b c))) <graphic> c
+
+
+
 
 
 
