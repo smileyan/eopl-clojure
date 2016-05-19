@@ -709,8 +709,119 @@ Chapter 6. Operations on Objects
     (cdddr '(a b c d)) <graphic> (d)
     (cadadr '(a (b c))) <graphic> c
 
+    procedure: (list obj ...) 
+    returns: a list of obj ... 
+    libraries: (rnrs base), (rnrs)
 
+    list is equivalent to (lambda x x).
 
+    (list) <graphic> ()
+    (list 1 2 3) <graphic> (1 2 3)
+    (list 3 2 1) <graphic> (3 2 1)
+
+    procedure: (cons* obj ... final-obj) 
+    returns: a list of obj ... terminated by final-obj 
+    libraries: (rnrs lists), (rnrs)
+
+    If the objects obj ... are omitted, the result is simply final-obj. Otherwise, a list of obj ... is constructed, as with list, except that the final cdr field is final-obj instead of (). 
+    If final-obj is not a list, the result is an improper list.
+
+    (cons* '()) <graphic> ()
+    (cons* '(a b)) <graphic> (a b)
+    (cons* 'a 'b 'c) <graphic> (a b . c)
+    (cons* 'a 'b '(c d)) <graphic> (a b c d)
+
+    procedure: (list? obj) 
+    returns: #t if obj is a proper list, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    list? must return #f for all improper lists, including cyclic lists. A definition of list? is shown on page 67.
+
+    (list? '()) <graphic> #t
+    (list? '(a b c)) <graphic> #t
+    (list? 'a) <graphic> #f
+    (list? '(3 . 4)) <graphic> #f
+    (list? 3) <graphic> #f
+    (let ([x (list 'a 'b 'c)])
+      (set-cdr! (cddr x) x)
+      (list? x)) <graphic> #f
+
+    procedure: (length list) 
+    returns: the number of elements in list 
+    libraries: (rnrs base), (rnrs)
+
+    length may be defined as follows, using an adaptation of the hare and tortoise algorithm used for the definition of list? on page 67.
+
+    (define length
+      (lambda (x)
+        (define improper-list
+          (lambda ()
+            (assertion-violation 'length "not a proper list" x))) 
+
+        (let f ([h x] [t x] [n 0])
+          (if (pair? h)
+              (let ([h (cdr h)])
+                (if (pair? h)
+                    (if (eq? h t)
+                        (improper-list)
+                        (f (cdr h) (cdr t) (+ n 2)))
+                    (if (null? h)
+                        (+ n 1)
+                        (improper-list))))
+              (if (null? h)
+                  n
+                  (improper-list)))))) 
+
+    (length '()) <graphic> 0
+    (length '(a b c)) <graphic> 3
+    (length '(a b . c)) <graphic> exception
+    (length
+      (let ([ls (list 'a 'b)])
+        (set-cdr! (cdr ls) ls) <graphic> exception
+        ls))
+    (length
+      (let ([ls (list 'a 'b)])
+        (set-car! (cdr ls) ls) <graphic> 2
+        ls))
+
+    procedure: (list-ref list n) 
+    returns: the nth element (zero-based) of list 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact nonnegative integer less than the length of list. list-ref may be defined without error checks as follows.
+
+    (define list-ref
+      (lambda (ls n)
+        (if (= n 0)
+            (car ls)
+            (list-ref (cdr ls) (- n 1))))) 
+
+    (list-ref '(a b c) 0) <graphic> a
+    (list-ref '(a b c) 1) <graphic> b
+    (list-ref '(a b c) 2) <graphic> c
+
+    procedure: (list-tail list n) 
+    returns: the nth tail (zero-based) of list 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact nonnegative integer less than or equal to the length of list. The result is not a copy; the tail is eq? to the nth cdr of list (or to list itself, if n is zero).
+
+    list-tail may be defined without error checks as follows.
+
+    (define list-tail
+      (lambda (ls n)
+        (if (= n 0)
+            ls
+            (list-tail (cdr ls) (- n 1))))) 
+
+    (list-tail '(a b c) 0) <graphic> (a b c)
+    (list-tail '(a b c) 2) <graphic> (c)
+    (list-tail '(a b c) 3) <graphic> ()
+    (list-tail '(a b c . d) 2) <graphic> (c . d)
+    (list-tail '(a b c . d) 3) <graphic> d
+    (let ([x (list 1 2 3)])
+      (eq? (list-tail x 2)
+           (cddr x))) <graphic> #t
 
 
 
