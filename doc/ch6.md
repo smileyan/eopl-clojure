@@ -823,6 +823,110 @@ Chapter 6. Operations on Objects
       (eq? (list-tail x 2)
            (cddr x))) <graphic> #t
 
+    procedure: (append) 
+    procedure: (append list ... obj) 
+    returns: the concatenation of the input lists 
+    libraries: (rnrs base), (rnrs)
+
+    append returns a new list consisting of the elements of the first list followed by the elements of the second list, the elements of the third list, and so on. 
+    The new list is made from new pairs for all arguments but the last; the last (which need not be a list) is merely placed at the end of the new structure. 
+    append may be defined without error checks as follows.
+
+    (define append
+      (lambda args
+        (let f ([ls '()] [args args])
+          (if (null? args)
+              ls
+              (let g ([ls ls])
+                (if (null? ls)
+                    (f (car args) (cdr args))
+                    (cons (car ls) (g (cdr ls))))))))) 
+
+    (append '(a b c) '()) <graphic> (a b c)
+    (append '() '(a b c)) <graphic> (a b c)
+    (append '(a b) '(c d)) <graphic> (a b c d)
+    (append '(a b) 'c) <graphic> (a b . c)
+    (let ([x (list 'b)])
+      (eq? x (cdr (append '(a) x)))) <graphic> #t
+
+    procedure: (reverse list) 
+    returns: a new list containing the elements of list in reverse order 
+    libraries: (rnrs base), (rnrs)
+
+    reverse may be defined without error checks as follows.
+
+    (define reverse
+      (lambda (ls)
+        (let rev ([ls ls] [new '()])
+          (if (null? ls)
+              new
+              (rev (cdr ls) (cons (car ls) new)))))) 
+
+    (reverse '()) <graphic> ()
+    (reverse '(a b c)) <graphic> (c b a)
+
+    procedure: (memq obj list) 
+    procedure: (memv obj list) 
+    procedure: (member obj list) 
+    returns: the first tail of list whose car is equivalent to obj, or #f 
+    libraries: (rnrs lists), (rnrs)
+
+    These procedures traverse the argument list in order, comparing the elements of list against obj. 
+    If an object equivalent to obj is found, the tail of the list whose first element is that object is returned. 
+    If the list contains more than one object equivalent to obj, the first tail whose first element is equivalent to obj is returned. 
+    If no object equivalent to obj is found, #f is returned. The equivalence test for memq is eq?, for memv is eqv?, and for member is equal?.
+
+    These procedures are most often used as predicates, but their names do not end with a question mark because they return a useful true value in place of #t. 
+    memq may be defined without error checks as follows.
+
+    (define memq
+      (lambda (x ls)
+        (cond
+          [(null? ls) #f]
+          [(eq? (car ls) x) ls]
+          [else (memq x (cdr ls))])))
+
+    memv and member may be defined similarly, with eqv? and equal? in place of eq?.
+
+    (memq 'a '(b c a d e)) <graphic> (a d e)
+    (memq 'a '(b c d e g)) <graphic> #f
+    (memq 'a '(b a c a d a)) <graphic> (a c a d a) 
+
+    (memv 3.4 '(1.2 2.3 3.4 4.5)) <graphic> (3.4 4.5)
+    (memv 3.4 '(1.3 2.5 3.7 4.9)) <graphic> #f
+    (let ([ls (list 'a 'b 'c)])
+      (set-car! (memv 'b ls) 'z)
+      ls) <graphic> (a z c) 
+
+    (member '(b) '((a) (b) (c))) <graphic> ((b) (c))
+    (member '(d) '((a) (b) (c))) <graphic> #f
+    (member "b" '("a" "b" "c")) <graphic> ("b" "c") 
+
+    (let ()
+      (define member?
+        (lambda (x ls)
+          (and (member x ls) #t)))
+      (member? '(b) '((a) (b) (c)))) <graphic> #t 
+
+    (define count-occurrences
+      (lambda (x ls)
+        (cond
+          [(memq x ls) =>
+           (lambda (ls)
+             (+ (count-occurrences x (cdr ls)) 1))]
+          [else 0]))) 
+
+    (count-occurrences 'a '(a b c d a)) <graphic> 2
+
+
+
+
+
+
+
+
+
+
 
 
 
