@@ -918,6 +918,148 @@ Chapter 6. Operations on Objects
 
     (count-occurrences 'a '(a b c d a)) <graphic> 2
 
+    procedure: (memp procedure list) 
+    returns: the first tail of list for whose car procedure returns true, or #f 
+    libraries: (rnrs lists), (rnrs)
+
+    procedure should accept one argument and return a single value. It should not modify list.
+
+    (memp odd? '(1 2 3 4)) <graphic> (1 2 3 4)
+    (memp even? '(1 2 3 4)) <graphic> (2 3 4)
+    (let ([ls (list 1 2 3 4)])
+      (eq? (memp odd? ls) ls)) <graphic> #t
+    (let ([ls (list 1 2 3 4)])
+      (eq? (memp even? ls) (cdr ls))) <graphic> #t
+    (memp odd? '(2 4 6 8)) <graphic> #f
+
+    procedure: (remq obj list) 
+    procedure: (remv obj list) 
+    procedure: (remove obj list) 
+    returns: a list containing the elements of list with all occurrences of obj removed 
+    libraries: (rnrs lists), (rnrs)
+
+    These procedures traverse the argument list, removing any objects that are equivalent to obj. 
+    The elements remaining in the output list are in the same order as they appear in the input list. 
+    If a tail of list (including list itself) contains no occurrences of obj, 
+    the corresponding tail of the result list may be the same (by eq?) as the tail of the input list.
+
+    The equivalence test for remq is eq?, for remv is eqv?, and for remove is equal?.
+
+    (remq 'a '(a b a c a d)) <graphic> (b c d)
+    (remq 'a '(b c d)) <graphic> (b c d) 
+
+    (remv 1/2 '(1.2 1/2 0.5 3/2 4)) <graphic> (1.2 0.5 3/2 4) 
+
+    (remove '(b) '((a) (b) (c))) <graphic> ((a) (c))
+
+    procedure: (remp procedure list) 
+    returns: a list of the elements of list for which procedure returns #f 
+    libraries: (rnrs lists), (rnrs)
+
+    procedure should accept one argument and return a single value. It should not modify list.
+
+    remp applies procedure to each element of list and returns a list containing only the elements for which procedure returns #f. 
+    The elements of the returned list appear in the same order as they appeared in the original list.
+
+    (remp odd? '(1 2 3 4)) <graphic> (2 4)
+    (remp
+      (lambda (x) (and (> x 0) (< x 10)))
+      '(-5 15 3 14 -20 6 0 -9)) <graphic> (-5 15 14 -20 0 -9)
+
+    procedure: (filter procedure list) 
+    returns: a list of the elements of list for which procedure returns true 
+    libraries: (rnrs lists), (rnrs)
+
+    procedure should accept one argument and return a single value. It should not modify list.
+
+    filter applies procedure to each element of list and returns a new list containing only the elements for which procedure returns true. 
+    The elements of the returned list appear in the same order as they appeared in the original list.
+
+    (filter odd? '(1 2 3 4)) <graphic> (1 3)
+    (filter
+      (lambda (x) (and (> x 0) (< x 10)))
+      '(-5 15 3 14 -20 6 0 -9)) <graphic> (3 6)
+
+    procedure: (partition procedure list) 
+    returns: see below 
+    libraries: (rnrs lists), (rnrs)
+
+    procedure should accept one argument and return a single value. It should not modify list.
+
+    partition applies procedure to each element of list and returns two values: 
+    a new list containing only the elements for which procedure returns true, 
+    and a new list containing only the elements for which procedure returns #f. 
+    The elements of the returned lists appear in the same order as they appeared in the original list.
+
+    (partition odd? '(1 2 3 4)) <graphic> (1 3)
+                                          (2 4)
+    (partition
+      (lambda (x) (and (> x 0) (< x 10)))
+      '(-5 15 3 14 -20 6 0 -9)) <graphic> (3 6)
+                                          (-5 15 14 -20 0 -9)
+
+    The values returned by partition can be obtained by calling filter and remp separately, 
+    but this would require two calls to procedure for each element of list.
+
+    procedure: (find procedure list) 
+    returns: the first element of list for which procedure returns true, or #f 
+    libraries: (rnrs lists), (rnrs)
+
+    procedure should accept one argument and return a single value. It should not modify list.
+
+    find traverses the argument list in order, applying procedure to each element in turn. 
+    If procedure returns a true value for a given element, find returns that element without applying procedure to the remaining elements. 
+    If procedure returns #f for each element of list, find returns #f.
+
+    If a program must distinguish between finding #f in the list and finding no element at all, memp should be used instead.
+
+    (find odd? '(1 2 3 4)) <graphic> 1
+    (find even? '(1 2 3 4)) <graphic> 2
+    (find odd? '(2 4 6 8)) <graphic> #f
+    (find not '(1 a #f 55)) <graphic> #f
+
+    procedure: (assq obj alist) 
+    procedure: (assv obj alist) 
+    procedure: (assoc obj alist) 
+    returns: first element of alist whose car is equivalent to obj, or #f 
+    libraries: (rnrs lists), (rnrs)
+
+    The argument alist must be an association list. An association list is a proper list whose elements are key-value pairs of the form (key . value). 
+    Associations are useful for storing information (values) associated with certain objects (keys).
+
+    These procedures traverse the association list, testing each key for equivalence with obj. 
+    If an equivalent key is found, the key-value pair is returned. Otherwise, #f is returned.
+
+    The equivalence test for assq is eq?, for assv is eqv?, and for assoc is equal?. assq may be defined without error checks as follows.
+
+    (define assq
+      (lambda (x ls)
+        (cond
+          [(null? ls) #f]
+          [(eq? (caar ls) x) (car ls)]
+          [else (assq x (cdr ls))])))
+
+    assv and assoc may be defined similarly, with eqv? and equal? in place of eq?.
+
+    (assq 'b '((a . 1) (b . 2))) <graphic> (b . 2)
+    (cdr (assq 'b '((a . 1) (b . 2)))) <graphic> 2
+    (assq 'c '((a . 1) (b . 2))) <graphic> #f 
+
+    (assv 2/3 '((1/3 . 1) (2/3 . 2))) <graphic> (2/3 . 2)
+    (assv 2/3 '((1/3 . a) (3/4 . b))) <graphic> #f 
+
+    (assoc '(a) '(((a) . a) (-1 . b))) <graphic> ((a) . a)
+    (assoc '(a) '(((b) . b) (a . c))) <graphic> #f 
+
+    (let ([alist (list (cons 2 'a) (cons 3 'b))])
+      (set-cdr! (assv 3 alist) 'c)
+      alist) <graphic> ((2 . a) (3 . c))
+
+    The interpreter given in Section 12.7 represents environments as association lists and uses assq for both variable lookup and assignment.
+
+
+
+
 
 
 
