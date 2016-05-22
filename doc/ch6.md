@@ -1057,6 +1057,40 @@ Chapter 6. Operations on Objects
 
     The interpreter given in Section 12.7 represents environments as association lists and uses assq for both variable lookup and assignment.
 
+    procedure: (assp procedure alist) 
+    returns: first element of alist for whose car procedure returns true, or #f 
+    libraries: (rnrs lists), (rnrs)
+
+    alist must be an association list. An association list is a proper list whose elements are key-value pairs of the form (key . value). 
+    procedure should accept one argument and return a single value. It should not modify list.
+
+    (assp odd? '((1 . a) (2 . b))) <graphic> (1 . a)
+    (assp even? '((1 . a) (2 . b))) <graphic> (2 . b)
+    (let ([ls (list (cons 1 'a) (cons 2 'b))])
+      (eq? (assp odd? ls) (car ls))) <graphic> #t
+    (let ([ls (list (cons 1 'a) (cons 2 'b))])
+      (eq? (assp even? ls) (cadr ls))) <graphic> #t
+    (assp odd? '((2 . b))) <graphic> #f
+
+    procedure: (list-sort predicate list) 
+    returns: a list containing the elements of list sorted according to predicate 
+    libraries: (rnrs sorting), (rnrs)
+
+    predicate should be a procedure that expects two arguments and returns #t if its first argument must precede its second in the sorted list. 
+    That is, if predicate is applied to two elements x and y, where x appears after y in the input list, 
+    it should return true only if x should appear before y in the output list. If this constraint is met, list-sort performs a stable sort, i.e., two elements are reordered only when necessary according to predicate. Duplicate elements are not removed. This procedure may call predicate up to nlogn times, where n is the length of list.
+
+    (list-sort < '(3 4 2 1 2 5)) <graphic> (1 2 2 3 4 5)
+    (list-sort > '(0.5 1/2)) <graphic> (0.5 1/2)
+    (list-sort > '(1/2 0.5)) <graphic> (1/2 0.5)
+    (list->string
+      (list-sort char>?
+        (string->list "hello"))) <graphic> "ollhe"
+
+  Section 6.4. Numbers
+
+
+
 
 
 
