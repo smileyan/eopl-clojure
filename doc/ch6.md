@@ -1089,8 +1089,58 @@ Chapter 6. Operations on Objects
 
   Section 6.4. Numbers
 
+    Scheme numbers may be classified as integers, rational numbers, real numbers, or complex numbers. 
+    This classification is hierarchical, in that all integers are rational, all rational numbers are real, and all real numbers are complex. 
+    The predicates integer?, rational?, real?, and complex? described in Section 6.2 are used to determine into which of these classes a number falls.
 
+    A Scheme number may also be classified as exact or inexact, depending upon the quality of operations used to derive the number and the inputs to these operations. 
+    The predicates exact? and inexact? may be used to determine the exactness of a number. 
+    Most operations on numbers in Scheme are exactness preserving: if given exact operands they return exact values, and if given inexact operands or a combination of exact and inexact operands they return inexact values.
 
+    Exact integer and rational arithmetic is typically supported to arbitrary precision; the size of an integer or of the denominator or numerator of a ratio is limited only by system storage constraints. 
+    Although other representations are possible, inexact numbers are typically represented by floating-point numbers supported by the host computer's hardware or by system software. 
+    Complex numbers are typically represented as ordered pairs (real-part, imag-part), where real-part and imag-part are exact integers, exact rationals, or floating-point numbers.
+
+    Scheme numbers are written in a straightforward manner not much different from ordinary conventions for writing numbers. 
+    An exact integer is normally written as a sequence of numerals preceded by an optional sign. 
+    For example, 3, +19, -100000, and 208423089237489374 all represent exact integers.
+
+    An exact rational number is normally written as two sequences of numerals separated by a slash (/) and preceded by an optional sign. 
+    For example, 3/4, -6/5, and 1/1208203823 are all exact rational numbers. 
+    A ratio is reduced immediately to lowest terms when it is read and may in fact reduce to an exact integer.
+
+    Inexact real numbers are normally written in either floating-point or scientific notation. 
+    Floating-point notation consists of a sequence of numerals followed by a decimal point and another sequence of numerals, all preceded by an optional sign. 
+    Scientific notation consists of an optional sign, a sequence of numerals, an optional decimal point followed by a second string of numerals, and an exponent; 
+    an exponent is written as the letter e followed by an optional sign and a sequence of numerals. 
+    For example, 1.0 and -200.0 are valid inexact integers, and 1.5, 0.034, -10e-10 and 1.5e-5 are valid inexact rational numbers. 
+    The exponent is the power of ten by which the number preceding the exponent should be scaled, so that 2e3 is equivalent to 2000.0.
+
+    A mantissa width |w may appear as the suffix of a real number or the real components of a complex number written in floating-point or scientific notation. 
+    The mantissa width m represents the number of significant bits in the representation of the number. 
+    The mantissa width defaults to 53, the number of significant bits in a normalized IEEE double floating-point number, or more. 
+    For denormalized IEEE double floating-point numbers, the mantissa width is less than 53. 
+    If an implementation cannot represent a number with the mantissa width specified, it uses a representation with at least as many significant bits as requested if possible, otherwise it uses its representation with the largest mantissa width.
+
+    Exact and inexact real numbers are written as exact or inexact integers or rational numbers; no provision is made in the syntax of Scheme numbers for nonrational real numbers, i.e., irrational numbers.
+
+    Complex numbers may be written in either rectangular or polar form. 
+    In rectangular form, a complex number is written as x+yi or x-yi, where x is an integer, rational, or real number and y is an unsigned integer, rational, or real number. 
+    The real part, x, may be omitted, in which case it is assumed to be zero. 
+    For example, 3+4i, 3.2-3/4i, +i, and -3e-5i are complex numbers written in rectangular form. 
+    In polar form, a complex number is written as x@y, where x and y are integer, rational, or real numbers. For example, 1.1@1.764 and -1@-1/2 are complex numbers written in polar form.
+
+    ...
+
+  Section 6.5. Fixnums
+
+    ...
+
+  Section 6.6. Flonums
+
+    ...
+
+  Section 6.7. Characters
 
 
 
