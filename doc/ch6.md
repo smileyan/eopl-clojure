@@ -1142,16 +1142,167 @@ Chapter 6. Operations on Objects
 
   Section 6.7. Characters
 
+    Characters are atomic objects representing letters, digits, special symbols such as $ or -, and certain nongraphic control characters such as space and newline. 
+    Characters are written with a #\ prefix. For most characters, the prefix is followed by the character itself. 
+    The written character representation of the letter A, for example, is #\A. The characters newline, space, and tab may be written in this manner as well, 
+    but they can be written more clearly as #\newline, #\space, and #\tab. Other character names are supported as well, as defined by the grammar for character objects on page 457. 
+    Any Unicode character may be written with the syntax #\xn, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar value.
 
+    This section describes the operations that deal primarily with characters. See also the following section on strings and Chapter 7 on input and output for other operations relating to characters.
 
+    procedure: (char=? char1 char2 char3 ...) 
+    procedure: (char<? char1 char2 char3 ...) 
+    procedure: (char>? char1 char2 char3 ...) 
+    procedure: (char<=? char1 char2 char3 ...) 
+    procedure: (char>=? char1 char2 char3 ...) 
+    returns: #t if the relation holds, #f otherwise 
+    libraries: (rnrs base), (rnrs)
 
+    These predicates behave in a similar manner to the numeric predicates =, <, >, <=, and >=. 
+    For example, char=? returns #t when its arguments are equivalent characters, and char<? returns #t when its arguments are monotonically increasing character (Unicode scalar) values.
 
+    (char>? #\a #\b) <graphic> #f
+    (char<? #\a #\b) <graphic> #t
+    (char<? #\a #\b #\c) <graphic> #t
+    (let ([c #\r])
+      (char<=? #\a c #\z)) <graphic> #t
+    (char<=? #\Z #\W) <graphic> #f
+    (char=? #\+ #\+) <graphic> #t
 
+    procedure: (char-ci=? char1 char2 char3 ...) 
+    procedure: (char-ci<? char1 char2 char3 ...) 
+    procedure: (char-ci>? char1 char2 char3 ...) 
+    procedure: (char-ci<=? char1 char2 char3 ...) 
+    procedure: (char-ci>=? char1 char2 char3 ...) 
+    returns: #t if the relation holds, #f otherwise 
+    libraries: (rnrs unicode), (rnrs)
 
+    These predicates are identical to the predicates char=?, char<?, char>?, char<=?, and char>=? except that they are case-insensitive, i.e., 
+    compare the case-folded versions of their arguments. For example, char=? considers #\a and #\A to be distinct values; char-ci=? does not.
 
+    (char-ci<? #\a #\B) <graphic> #t
+    (char-ci=? #\W #\w) <graphic> #t
+    (char-ci=? #\= #\+) <graphic> #f
+    (let ([c #\R])
+      (list (char<=? #\a c #\z)
+            (char-ci<=? #\a c #\z))) <graphic> (#f #t)
 
+    procedure: (char-alphabetic? char) 
+    returns: #t if char is a letter, #f otherwise 
+    procedure: (char-numeric? char) 
+    returns: #t if char is a digit, #f otherwise 
+    procedure: (char-whitespace? char) 
+    returns: #t if char is whitespace, #f otherwise 
+    libraries: (rnrs unicode), (rnrs)
 
+    A character is alphabetic if it has the Unicode "Alphabetic" property, numeric if it has the Unicode "Numeric" property, and whitespace if has the Unicode "White_Space" property.
 
+    (char-alphabetic? #\a) <graphic> #t
+    (char-alphabetic? #\T) <graphic> #t
+    (char-alphabetic? #\8) <graphic> #f
+    (char-alphabetic? #\$) <graphic> #f 
+
+    (char-numeric? #\7) <graphic> #t
+    (char-numeric? #\2) <graphic> #t
+    (char-numeric? #\X) <graphic> #f
+    (char-numeric? #\space) <graphic> #f 
+
+    (char-whitespace? #\space) <graphic> #t
+    (char-whitespace? #\newline) <graphic> #t
+    (char-whitespace? #\Z) <graphic> #f
+
+    procedure: (char-lower-case? char) 
+    returns: #t if char is lower case, #f otherwise 
+    procedure: (char-upper-case? char) 
+    returns: #t if char is upper case, #f otherwise 
+    procedure: (char-title-case? char) 
+    returns: #t if char is title case, #f otherwise 
+    libraries: (rnrs unicode), (rnrs)
+
+    A character is upper-case if it has the Unicode "Uppercase" property, lower-case if it has the "Lowercase" property, and title-case if it is in the Lt general category.
+
+    (char-lower-case? #\r) <graphic> #t
+    (char-lower-case? #\R) <graphic> #f 
+
+    (char-upper-case? #\r) <graphic> #f
+    (char-upper-case? #\R) <graphic> #t 
+
+    (char-title-case? #\I) <graphic> #f
+    (char-title-case? #\x01C5) <graphic> #t
+
+    procedure: (char-general-category char) 
+    returns: a symbol representing the Unicode general category of char 
+    libraries: (rnrs unicode), (rnrs)
+
+    The return value is one of the symbols Lu, Ll, Lt, Lm, Lo, Mn, Mc, Me, Nd, Nl, No, Ps, Pe, Pi, Pf, Pd, Pc, Po, Sc, Sm, Sk, So, Zs, Zp, Zl, Cc, Cf, Cs, Co, or Cn.
+
+    (char-general-category #\a) <graphic> Ll
+    (char-general-category #\space) <graphic> Zs
+    (char-general-category #\x10FFFF) <graphic> Cn  
+
+    procedure: (char-upcase char) 
+    returns: the upper-case character counterpart of char 
+    libraries: (rnrs unicode), (rnrs)
+
+    If char is a lower- or title-case character and has a single upper-case counterpart, char-upcase returns the upper-case counterpart. Otherwise char-upcase returns char.
+
+    (char-upcase #\g) <graphic> #\G
+    (char-upcase #\G) <graphic> #\G
+    (char-upcase #\7) <graphic> #\7
+    (char-upcase #\<graphic>) <graphic> #\<graphic>
+
+    procedure: (char-downcase char) 
+    returns: the lower-case character equivalent of char 
+    libraries: (rnrs unicode), (rnrs)
+
+    If char is an upper- or title-case character and has a single lower-case counterpart, char-downcase returns the lower-case counterpart. Otherwise char-downcase returns char.
+
+    (char-downcase #\g) <graphic> #\g
+    (char-downcase #\G) <graphic> #\g
+    (char-downcase #\7) <graphic> #\7
+    (char-downcase #\<graphic>) <graphic> #\<graphic>
+
+    procedure: (char-titlecase char) 
+    returns: the title-case character equivalent of char 
+    libraries: (rnrs unicode), (rnrs)
+
+    If char is an upper- or lower-case character and has a single title-case counterpart, char-titlecase returns the title-case counterpart. 
+    Otherwise, if it is not a title-case character, has no single title-case counterpart, but does have a single upper-case counterpart, char-titlecase returns the upper-case counterpart. Otherwise char-titlecase returns char.
+
+    (char-titlecase #\g) <graphic> #\G
+    (char-titlecase #\G) <graphic> #\G
+    (char-titlecase #\7) <graphic> #\7
+    (char-titlecase #\<graphic>) <graphic> #\<graphic>
+
+    procedure: (char-foldcase char) 
+    returns: the case-folded character equivalent of char 
+    libraries: (rnrs unicode), (rnrs)
+
+    If char has a case-folded counterpart, char-foldcase returns the case-folded counterpart. Otherwise, char-foldcase returns char. For most characters, (char-foldcase char) is equivalent to (char-downcase (char-upcase char)), but for Turkic İ and ı, char-foldcase acts as the identity.
+
+    (char-foldcase #\g) <graphic> #\g
+    (char-foldcase #\G) <graphic> #\g
+    (char-foldcase #\7) <graphic> #\7
+    (char-foldcase #\<graphic>) <graphic> #\<graphic>
+
+    procedure: (char->integer char) 
+    returns: the Unicode scalar value of char as an exact integer 
+    libraries: (rnrs base), (rnrs)
+
+    (char->integer #\newline) <graphic> 10
+    (char->integer #\space) <graphic> 32
+    (- (char->integer #\Z) (char->integer #\A)) <graphic> 25
+
+    procedure: (integer->char n) 
+    returns: the character corresponding to the Unicode scalar value n 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact integer and a valid Unicode scalar value, i.e., <graphic> or <graphic>.
+
+    (integer->char 48) <graphic> #\0
+    (integer->char #x3BB) <graphic> #\<graphic>
+
+  Section 6.8. Strings
 
 
 
