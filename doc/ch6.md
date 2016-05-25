@@ -1304,7 +1304,33 @@ Chapter 6. Operations on Objects
 
   Section 6.8. Strings
 
+    Strings are sequences of characters and are often used as messages, character buffers, or containers for blocks of text. 
+    Scheme provides operations for creating strings, extracting characters from strings, obtaining substrings, concatenating strings, and altering the contents of strings.
 
+    A string is written as a sequence of characters enclosed in double quotes, e.g., "hi there". 
+    A double quote may be introduced into a string by preceding it by a backward slash, e.g., "two \"quotes\" within". 
+    A backward slash may also be included by preceding it with a backward slash, e.g., "a \\slash". 
+    Various special characters can be inserted with other two-character sequences, e.g., \n for newline, \r for carriage return, and \t for tab. 
+    Any Unicode character may be inserted with the syntax #\xn;, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar value. 
+    A grammar defining the precise syntax of strings is given on page 458.
+
+    Strings are indexed by exact nonnegative integers, and the index of the first element of any string is 0. 
+    The highest valid index for a given string is one less than its length.
+
+    procedure: (string=? string1 string2 string3 ...) 
+    procedure: (string<? string1 string2 string3 ...) 
+    procedure: (string>? string1 string2 string3 ...) 
+    procedure: (string<=? string1 string2 string3 ...) 
+    procedure: (string>=? string1 string2 string3 ...) 
+    returns: #t if the relation holds, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    As with =, <, >, <=, and >=, these predicates express relationships among all of the arguments. For example, string>? determines if the lexicographic ordering of its arguments is monotonically decreasing.
+
+    The comparisons are based on the character predicates char=? and char<?. 
+    Two strings are lexicographically equivalent if they are the same length and consist of the same sequence of characters according to char=?. 
+    If two strings differ only in length, the shorter string is considered to be lexicographically less than the longer string. 
+    Otherwise, the first character position at which the strings differ (by char=?) determines which string is lexicographically less than the other, according to char<?.
 
 
 
