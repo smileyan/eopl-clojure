@@ -1332,5 +1332,75 @@ Chapter 6. Operations on Objects
     If two strings differ only in length, the shorter string is considered to be lexicographically less than the longer string. 
     Otherwise, the first character position at which the strings differ (by char=?) determines which string is lexicographically less than the other, according to char<?.
 
+    Two-argument string=? may be defined without error checks as follows.
+
+    (define string=?
+      (lambda (s1 s2)
+        (let ([n (string-length s1)])
+          (and (= (string-length s2) n)
+               (let loop ([i 0])
+                 (or (= i n)
+                     (and (char=? (string-ref s1 i) (string-ref s2 i))
+                          (loop (+ i 1)))))))))
+
+    Two-argument string<? may be defined without error checks as follows.
+
+    (define string<?
+      (lambda (s1 s2)
+        (let ([n1 (string-length s1)] [n2 (string-length s2)])
+          (let loop ([i 0])
+            (and (not (= i n2))
+                 (or (= i n1)
+                     (let ([c1 (string-ref s1 i)] [c2 (string-ref s2 i)])
+                       (or (char<? c1 c2)
+                           (and (char=? c1 c2)
+                                (loop (+ i 1)))))))))))
+
+    These definitions may be extended straightforwardly to support three or more arguments. string<=?, string>?, and string>=? may be defined similarly.
+
+    (string=? "mom" "mom") <graphic> #t
+    (string<? "mom" "mommy") <graphic> #t
+    (string>? "Dad" "Dad") <graphic> #f
+    (string=? "Mom and Dad" "mom and dad") <graphic> #f
+    (string<? "a" "b" "c") <graphic> #t
+
+    procedure: (string-ci=? string1 string2 string3 ...) 
+    procedure: (string-ci<? string1 string2 string3 ...) 
+    procedure: (string-ci>? string1 string2 string3 ...) 
+    procedure: (string-ci<=? string1 string2 string3 ...) 
+    procedure: (string-ci>=? string1 string2 string3 ...) 
+    returns: #t if the relation holds, #f otherwise 
+    libraries: (rnrs unicode), (rnrs)
+
+    These predicates are identical to string=?, string<?, string>?, string<=?, and string>=? except that they are case-insensitive, i.e., compare the case-folded versions of their arguments.
+
+    (string-ci=? "Mom and Dad" "mom and dad") <graphic> #t
+    (string-ci<=? "say what" "Say What!?") <graphic> #t
+    (string-ci>? "N" "m" "L" "k") <graphic> #t
+    (string-ci=? "Stra\sse" "Strasse") <graphic> #t
+
+    procedure: (string char ...) 
+    returns: a string containing the characters char ... 
+    libraries: (rnrs base), (rnrs)
+
+    (string) <graphic> ""
+    (string #\a #\b #\c) <graphic> "abc"
+    (string #\H #\E #\Y #\!) <graphic> "HEY!"
+
+    procedure: (make-string n) 
+    procedure: (make-string n char) 
+    returns: a string of length n 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact nonnegative integer. If char is supplied, the string is filled with n occurrences of char, otherwise the characters contained in the string are unspecified.
+
+    (make-string 0) <graphic> ""
+    (make-string 0 #\x) <graphic> ""
+    (make-string 5 #\x) <graphic> "xxxxx"
+
+
+
+
+
 
 
