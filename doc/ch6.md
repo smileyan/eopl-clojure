@@ -1398,6 +1398,70 @@ Chapter 6. Operations on Objects
     (make-string 0 #\x) <graphic> ""
     (make-string 5 #\x) <graphic> "xxxxx"
 
+    procedure: (string-length string) 
+    returns: the number of characters in string 
+    libraries: (rnrs base), (rnrs)
+
+    The length of a string is always an exact nonnegative integer.
+
+    (string-length "abc") <graphic> 3
+    (string-length "") <graphic> 0
+    (string-length "hi there") <graphic> 8
+    (string-length (make-string 1000000)) <graphic> 1000000
+
+    procedure: (string-ref string n) 
+    returns: the nth character (zero-based) of string 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact nonnegative integer less than the length of string.
+
+    (string-ref "hi there" 0) <graphic> #\h
+    (string-ref "hi there" 5) <graphic> #\e
+
+    procedure: (string-set! string n char) 
+    returns: unspecified 
+    libraries: (rnrs mutable-strings)
+
+    n must be an exact nonnegative integer less than the length of string. string-set! changes the nth element of string to char.
+
+    (let ([str (string-copy "hi three")])
+      (string-set! str 5 #\e)
+      (string-set! str 6 #\r)
+      str) <graphic> "hi there"
+
+    procedure: (string-copy string) 
+    returns: a new copy of string 
+    libraries: (rnrs base), (rnrs)
+
+    This procedure creates a new string with the same length and contents as string.
+
+    (string-copy "abc") <graphic> "abc" 
+
+    (let ([str "abc"])
+      (eq? str (string-copy str))) <graphic> #f
+
+    procedure: (string-append string ...) 
+    returns: a new string formed by concatenating the strings string ... 
+    libraries: (rnrs base), (rnrs)
+
+    (string-append) <graphic> ""
+    (string-append "abc" "def") <graphic> "abcdef"
+    (string-append "Hey " "you " "there!") <graphic> "Hey you there!"
+
+    The following implementation of string-append recurs down the list of strings to compute the total length, then allocates the new string, then fills it up as it unwinds the recursion.
+
+    (define string-append
+      (lambda args
+        (let f ([ls args] [n 0])
+          (if (null? ls)
+              (make-string n)
+              (let* ([s1 (car ls)]
+                    [m (string-length s1)]
+                    [s2 (f (cdr ls) (+ n m))])
+                (do ([i 0 (+ i 1)] [j n (+ j 1)])
+                    ((= i m) s2)
+                  (string-set! s2 j (string-ref s1 i))))))))
+
 
 
 
