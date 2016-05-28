@@ -1462,6 +1462,148 @@ Chapter 6. Operations on Objects
                     ((= i m) s2)
                   (string-set! s2 j (string-ref s1 i))))))))
 
+    procedure: (substring string start end) 
+    returns: a copy of string from start (inclusive) to end (exclusive) 
+    libraries: (rnrs base), (rnrs)
+
+    start and end must be exact nonnegative integers; start must be less than the length of string, 
+    while end may be less than or equal to the length of string. 
+    If end ≤ start, a string of length zero is returned. substring may be defined without error checks as follows.
+
+    (define substring
+      (lambda (s1 m n)
+        (let ([s2 (make-string (- n m))])
+          (do ([j 0 (+ j 1)] [i m (+ i 1)])
+              ((= i n) s2)
+            (string-set! s2 j (string-ref s1 i)))))) 
+
+    (substring "hi there" 0 1) <graphic> "h"
+    (substring "hi there" 3 6) <graphic> "the"
+    (substring "hi there" 5 5) <graphic> "" 
+
+    (let ([str "hi there"])
+      (let ([end (string-length str)])
+        (substring str 0 end))) <graphic> "hi there"
+
+    procedure: (string-fill! string char) 
+    returns: unspecified 
+    libraries: (rnrs mutable-strings)
+
+    string-fill! sets every character in string to char.
+
+    (let ([str (string-copy "sleepy")])
+      (string-fill! str #\Z)
+      str) <graphic> "ZZZZZZ"
+
+    string-fill! might be defined as follows:
+
+    (define string-fill!
+      (lambda (s c)
+        (let ([n (string-length s)])
+          (do ([i 0 (+ i 1)])
+              ((= i n))
+              (string-set! s i c)))))
+
+    An alternative definition is given on page 276.
+
+    procedure: (string-upcase string) 
+    returns: the upper-case equivalent of string 
+    procedure: (string-downcase string) 
+    returns: the lower-case equivalent of string 
+    procedure: (string-foldcase string) 
+    returns: the case-folded equivalent of string 
+    procedure: (string-titlecase string) 
+    returns: the title-case equivalent of string 
+    libraries: (rnrs unicode), (rnrs)
+
+    These procedures implement Unicode's locale-independent case mappings from scalar-value sequences to scalar-value sequences. 
+    These mappings do not always map single characters to single characters, so the length of the result string may differ from the length of string. 
+    If the result string is the same as string (by string=?), string or a copy of string may be returned. 
+    Otherwise, the result string is newly allocated. string-foldcase does not use the special mappings for Turkic languages.
+
+    string-titlecase converts the first cased character of each word in string to its title-case counterpart and 
+    converts each other character to its lower-case counterpart. Word breaks are recognized as specified in Unicode Standard Annex #29 [8].
+
+    (string-upcase "Hi") <graphic> "HI"
+    (string-downcase "Hi") <graphic> "hi"
+    (string-foldcase "Hi") <graphic> "hi" 
+
+    (string-upcase "Straße") <graphic> "STRASSE"
+    (string-downcase "Straße") <graphic> "straße"
+    (string-foldcase "Straße") <graphic> "strasse"
+    (string-downcase "STRASSE")  <graphic> "strasse" 
+
+    (string-downcase "<graphic>") <graphic> "<graphic>" 
+
+    (string-titlecase "kNock KNoCK") <graphic> "Knock Knock"
+    (string-titlecase "who's there?") <graphic> "Who's There?"
+    (string-titlecase "r6rs") <graphic> "R6rs"
+    (string-titlecase "R6RS") <graphic> "R6rs"
+
+    procedure: (string-normalize-nfd string) 
+    returns: the Unicode normalized form D of string 
+    procedure: (string-normalize-nfkd string) 
+    returns: the Unicode normalized form KD of string 
+    procedure: (string-normalize-nfc string) 
+    returns: the Unicode normalized form C of string 
+    procedure: (string-normalize-nfkc string) 
+    returns: the Unicode normalized form KC of string 
+    libraries: (rnrs unicode), (rnrs)
+
+    If the result string is the same as string (by string=?), string or a copy of string may be returned. 
+    Otherwise, the result string is newly allocated.
+
+    (string-normalize-nfd "\xE9;") <graphic> "e\x301;"
+    (string-normalize-nfc "\xE9;") <graphic> "\xE9;"
+    (string-normalize-nfd "\x65;\x301;") <graphic> "e\x301;"
+    (string-normalize-nfc "\x65;\x301;") <graphic> "\xE9;"
+
+    procedure: (string->list string) 
+    returns: a list of the characters in string 
+    libraries: (rnrs base), (rnrs)
+
+    string->list allows a string to be converted into a list, so that Scheme's list-processing operations may be applied to the processing of strings. 
+    string->list may be defined without error checks as follows.
+
+    (define string->list
+      (lambda (s)
+        (do ([i (- (string-length s) 1) (- i 1)]
+            [ls '() (cons (string-ref s i) ls)])
+            ((< i 0) ls)))) 
+
+    (string->list "") <graphic> ()
+    (string->list "abc") <graphic> (#\a #\b #\c)
+    (apply char<? (string->list "abc")) <graphic> #t
+    (map char-upcase (string->list "abc")) <graphic> (#\A #\B #\C)
+
+    procedure: (list->string list) 
+    returns: a string of the characters in list 
+    libraries: (rnrs base), (rnrs)
+
+    list must consist entirely of characters.
+
+    list->string is the functional inverse of string->list. 
+    A program might use both procedures together, first converting a string into a list, 
+    then operating on this list to produce a new list, 
+    and finally converting the new list back into a string.
+
+    list->string may be defined without error checks as follows.
+
+    (define list->string
+      (lambda (ls)
+        (let ([s (make-string (length ls))])
+          (do ([ls ls (cdr ls)] [i 0 (+ i 1)])
+              ((null? ls) s)
+            (string-set! s i (car ls)))))) 
+
+    (list->string '()) <graphic> ""
+    (list->string '(#\a #\b #\c)) <graphic> "abc"
+    (list->string
+      (map char-upcase
+          (string->list "abc"))) <graphic> "ABC"
+
+  Section 6.9. Vectors
+
 
 
 
