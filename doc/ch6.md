@@ -1604,8 +1604,150 @@ Chapter 6. Operations on Objects
 
   Section 6.9. Vectors
 
+    Vectors are more convenient and efficient than lists for some applications. 
+    Whereas accessing an arbitrary element in a list requires a linear traversal of the list up to the selected element, 
+    arbitrary vector elements are accessed in constant time. The length of a vector is the number of elements it contains. 
+    Vectors are indexed by exact nonnegative integers, and the index of the first element of any vector is 0. 
+    The highest valid index for a given vector is one less than its length.
 
+    As with lists, the elements of a vector can be of any type, and a single vector can hold more than one type of object.
 
+    A vector is written as a sequence of objects separated by whitespace, preceded by the prefix #( and followed by ). 
+    For example, a vector consisting of the elements a, b, and c would be written #(a b c).
+
+    procedure: (vector obj ...) 
+    returns: a vector of the objects obj ... 
+    libraries: (rnrs base), (rnrs)
+
+    (vector) <graphic> #()
+    (vector 'a 'b 'c) <graphic> #(a b c)
+
+    procedure: (make-vector n) 
+    procedure: (make-vector n obj) 
+    returns: a vector of length n 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact nonnegative integer. If obj is supplied, each element of the vector is filled with obj; 
+    otherwise, the elements are unspecified.
+
+    (make-vector 0) <graphic> #()
+    (make-vector 0 '#(a)) <graphic> #()
+    (make-vector 5 '#(a)) <graphic> #(#(a) #(a) #(a) #(a) #(a))
+
+    procedure: (vector-length vector) 
+    returns: the number of elements in vector 
+    libraries: (rnrs base), (rnrs)
+
+    The length of a vector is always an exact nonnegative integer.
+
+    (vector-length '#()) <graphic> 0
+    (vector-length '#(a b c)) <graphic> 3
+    (vector-length (vector 1 '(2) 3 '#(4 5))) <graphic> 4
+    (vector-length (make-vector 300)) <graphic> 300
+
+    procedure: (vector-ref vector n) 
+    returns: the nth element (zero-based) of vector 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact nonnegative integer less than the length of vector.
+
+    (vector-ref '#(a b c) 0) <graphic> a
+    (vector-ref '#(a b c) 1) <graphic> b
+    (vector-ref '#(x y z w) 3) <graphic> w
+
+    procedure: (vector-set! vector n obj) 
+    returns: unspecified 
+    libraries: (rnrs base), (rnrs)
+
+    n must be an exact nonnegative integer less than the length of vector. vector-set! changes the nth element of vector to obj.
+
+    (let ([v (vector 'a 'b 'c 'd 'e)])
+      (vector-set! v 2 'x)
+      v) <graphic> #(a b x d e)
+
+    procedure: (vector-fill! vector obj) 
+    returns: unspecified 
+    libraries: (rnrs base), (rnrs)
+
+    vector-fill! replaces each element of vector with obj. It may be defined without error checks as follows.
+
+    (define vector-fill!
+      (lambda (v x)
+        (let ([n (vector-length v)])
+          (do ([i 0 (+ i 1)])
+              ((= i n))
+            (vector-set! v i x))))) 
+
+    (let ([v (vector 1 2 3)])
+      (vector-fill! v 0)
+      v) <graphic> #(0 0 0)
+
+    procedure: (vector->list vector) 
+    returns: a list of the elements of vector 
+    libraries: (rnrs base), (rnrs)
+
+    vector->list provides a convenient method for applying list-processing operations to vectors. It may be defined without error checks as follows.
+
+    (define vector->list
+      (lambda (s)
+        (do ([i (- (vector-length s) 1) (- i 1)]
+            [ls '() (cons (vector-ref s i) ls)])
+            ((< i 0) ls)))) 
+
+    (vector->list (vector)) <graphic> ()
+    (vector->list '#(a b c)) <graphic> (a b c) 
+
+    (let ((v '#(1 2 3 4 5)))
+      (apply * (vector->list v))) <graphic> 120
+
+    procedure: (list->vector list) 
+    returns: a vector of the elements of list 
+    libraries: (rnrs base), (rnrs)
+
+    list->vector is the functional inverse of vector->list. The two procedures are often used in combination to take advantage of a list-processing operation. 
+    A vector may be converted to a list with vector->list, this list processed in some manner to produce a new list, and the new list converted back into a vector with list->vector.
+
+    list->vector may be defined without error checks as follows.
+
+    (define list->vector
+      (lambda (ls)
+        (let ([s (make-vector (length ls))])
+          (do ([ls ls (cdr ls)] [i 0 (+ i 1)])
+              ((null? ls) s)
+            (vector-set! s i (car ls)))))) 
+
+    (list->vector '()) <graphic> #()
+    (list->vector '(a b c)) <graphic> #(a b c) 
+
+    (let ([v '#(1 2 3 4 5)])
+      (let ([ls (vector->list v)])
+        (list->vector (map * ls ls)))) <graphic> #(1 4 9 16 25)
+
+    procedure: (vector-sort predicate vector) 
+    returns: a vector containing the elements of vector, sorted according to predicate 
+    procedure: (vector-sort! predicate vector) 
+    returns: unspecified 
+    libraries: (rnrs sorting), (rnrs)
+
+    predicate should be a procedure that expects two arguments and returns #t if its first argument must precede its second in the sorted vector. 
+    That is, if predicate is applied to two elements x and y, where x appears after y in the input vector, 
+    the predicate should return true only if x should appear before y in the output vector. 
+    If this constraint is met, vector-sort performs a stable sort, i.e., two elements are reordered only when necessary according to predicate. 
+    vector-sort! performs the sort destructively and does not necessarily perform a stable sort.
+    Duplicate elements are not removed. predicate should not have any side effects.
+
+    vector-sort may call predicate up to nlogn times, where n is the length of vector, 
+    while vector-sort! may call the predicate up to n2 times. 
+    The looser bound for vector-sort! allows an implementation to use a quicksort algorithm, 
+    which may be faster in some cases than algorithms that have the tighter nlogn bound.
+
+    (vector-sort < '#(3 4 2 1 2 5)) <graphic> #(1 2 2 3 4 5)
+    (vector-sort > '#(0.5 1/2)) <graphic> #(0.5 1/2)
+    (vector-sort > '#(1/2 0.5)) <graphic> #(1/2 0.5) 
+
+    (let ([v (vector 3 4 2 1 2 5)])
+      (vector-sort! < v)
+      v) <graphic> #(1 2 2 3 4 5)
 
 
 
