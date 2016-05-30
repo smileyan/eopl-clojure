@@ -1749,6 +1749,70 @@ Chapter 6. Operations on Objects
       (vector-sort! < v)
       v) <graphic> #(1 2 2 3 4 5)
 
+  Section 6.10. Bytevectors
+
+    Bytevectors are vectors of raw binary data. 
+    Although nominally organized as a sequence of exact unsigned 8-bit integers, a bytevector can be interpreted as a sequence of exact signed 8-bit integers, 
+    exact signed or unsigned 16-bit, 32-bit, 64-bit, or arbitrary-precision integers, IEEE single or double floating-point numbers, or arbitrary combinations of the above.
+
+    The length of a bytevector is the number of 8-bit bytes it stores, and indices into a bytevector are always given as byte offsets. 
+    Any data element may be aligned at any byte offset, regardless of the underlying hardware's alignment requirements, and may be represented using a specified endianness (see below) that differs from that prescribed by the hardware. 
+    Special, typically more efficient operators are provided for 16-, 32-, and 64-bit integers and single and double floats that are in their native format, 
+    i.e,. with the endianness of the underlying hardware and stored at an index that is a multiple of the size in bytes of the integer or float.
+
+    The endianness of a multi-byte data value determines how it is laid out in memory. 
+    In big-endian format, the value is laid out with the more significant bytes at lower indices, while in little-endian format, the value is laid out with the more significant bytes at higher indices. 
+    When a bytevector procedure accepts an endianness argument, the argument may be the symbol big, representing the big-endian format, or the symbol little, representing the little-endian format. 
+    Implementations may extend these procedures to accept other endianness symbols. The native endianness of the implementation may be obtained via the procedure native-endianness.
+
+    Bytevectors are written with the #vu8( prefix in place of the #( prefix for vectors, e.g., #vu8(1 2 3). 
+    The elements of a bytevector specified in this manner are always given as 8-bit unsigned exact integers, i.e., integers from 0 to 255 inclusive, written using any valid syntax for such numbers. 
+    Like strings, bytevectors are self-evaluating, so they need not be quoted.
+
+    '#vu8(1 2 3) <graphic> #vu8(1 2 3)
+    #vu8(1 2 3) <graphic> #vu8(1 2 3)
+    #vu8(#x3f #x7f #xbf #xff) <graphic> #vu8(63 127 191 255)
+
+    syntax: (endianness symbol) 
+    returns: symbol 
+    libraries: (rnrs bytevectors), (rnrs)
+
+    symbol must be the symbol little, the symbol big, or some other symbol recognized by the implementation as an endianness symbol. 
+    It is a syntax violation if symbol is not a symbol or if it is not recognized by the implementation as an endianness symbol.
+
+    (endianness little) <graphic> little
+    (endianness big) <graphic> big
+    (endianness "spam") <graphic> exception
+
+    procedure: (native-endianness) 
+    returns: a symbol naming the implementation's native endianness 
+    libraries: (rnrs bytevectors), (rnrs)
+
+    The return value is the symbol little, the symbol big, or some other endianness symbol recognized by the implementation. It typically reflects the endianness of the underlying hardware.
+
+    (symbol? (native-endianness)) <graphic> #t
+
+    procedure: (make-bytevector n) 
+    procedure: (make-bytevector n fill) 
+    returns: a new bytevector of length n 
+    libraries: (rnrs bytevectors), (rnrs)
+
+    If fill is supplied, each element of the bytevector is initialized to fill; otherwise, the elements are unspecified. 
+    The fill value must be a signed or unsigned 8-bit value, i.e., a value in the range -128 to 255 inclusive. A negative fill value is treated as its two's complement equivalent.
+
+    (make-bytevector 0) <graphic> #vu8()
+    (make-bytevector 0 7) <graphic> #vu8()
+    (make-bytevector 5 7) <graphic> #vu8(7 7 7 7 7)
+    (make-bytevector 5 -7) <graphic> #vu8(249 249 249 249 249)
+
+    ...
+    ...
+
+  Section 6.11. Symbols
+
+
+
+
 
 
 
