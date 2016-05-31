@@ -1810,7 +1810,81 @@ Chapter 6. Operations on Objects
 
   Section 6.11. Symbols
 
+    Symbols are used for a variety of purposes as symbolic names in Scheme programs. 
+    Strings could be used for most of the same purposes, but an important characteristic of symbols makes comparisons between symbols much more efficient. 
+    This characteristic is that two symbols with the same name are identical in the sense of eq?. 
+    The reason is that the Scheme reader (invoked by get-datum and read) and the procedure string->symbol catalog symbols in an internal symbol table and always return the same symbol whenever the same name is encountered. 
+    Thus, no character-by-character comparison is needed, as would be needed to compare two strings.
 
+    The property that two symbols may be compared quickly for equivalence makes them ideally suited for use as identifiers in the representation of programs, allowing fast comparison of identifiers. 
+    This property also makes symbols useful for a variety of other purposes. 
+    For example, symbols might be used as messages passed between procedures, labels for list-structured records, or names for objects stored in an association list (see assq in Section 6.3).
+
+    Symbols are written without double quotes or other bracketing characters. 
+    Parentheses, double quotes, spaces, and most other characters with a special meaning to the Scheme reader are not allowed within the printed representation of a symbol. 
+    These and any other Unicode character may appear anywhere within the printed representation of a symbol with the syntax #\xn;, where n consists of one or more hexadecimal digits and represents a valid Unicode scalar value.
+
+    The grammar for symbols on page 458 gives a precise definition of the syntax of symbols.
+
+    procedure: (symbol=? symbol1 symbol2) 
+    returns: #t if the two symbols are the same, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    Symbols can also be compared with eq?, which is typically more efficient than symbol=?.
+
+    (symbol=? 'a 'a) <graphic> #t
+    (symbol=? 'a (string->symbol "a")) <graphic> #t
+    (symbol=? 'a 'b) <graphic> #f
+
+    procedure: (string->symbol string) 
+    returns: a symbol whose name is string 
+    libraries: (rnrs base), (rnrs)
+
+    string->symbol records all symbols it creates in an internal table that it shares with the system reader. If a symbol whose name is equivalent to string (according to the predicate string=?) already exists in the table, this symbol is returned. Otherwise, a new symbol is created with string as its name; this symbol is entered into the table and returned.
+
+    The effect of modifying a string after it is used as an argument to string->symbol is unspecified.
+
+    (string->symbol "x") <graphic> x 
+
+    (eq? (string->symbol "x") 'x) <graphic> #t
+    (eq? (string->symbol "X") 'x) <graphic> #f 
+
+    (eq? (string->symbol "x")
+        (string->symbol "x")) <graphic> #t 
+
+    (string->symbol "()") <graphic> \x28;\x29;
+
+    procedure: (symbol->string symbol) 
+    returns: a string, the name of symbol 
+    libraries: (rnrs base), (rnrs)
+
+    The string returned by symbol->string should be treated as immutable. 
+    Unpredictable behavior can result if a string passed to string->symbol is altered with string-set! or by any other means.
+
+    (symbol->string 'xyz) <graphic> "xyz"
+    (symbol->string 'Hi) <graphic> "Hi"
+    (symbol->string (string->symbol "()")) <graphic> "()"
+
+  Section 6.12. Booleans
+
+    While every Scheme object has a truth value when used in a conditional context, with every object but #f counting as true, 
+    Scheme provides the dedicated true value #t for use when a value of an expression should convey nothing more than that it is true.
+
+    procedure: (boolean=? boolean1 boolean2) 
+    returns: #t if the two booleans are the same, #f otherwise 
+    libraries: (rnrs base), (rnrs)
+
+    The boolean values #t and #f may also be compared with eq?, which is typically more efficient than boolean=?.
+
+    (boolean=? #t #t) <graphic> #t
+    (boolean=? #t #f) <graphic> #f
+    (boolean=? #t (< 3 4)) <graphic> #t
+
+  Section 6.13. Hashtables
+
+
+
+    
 
 
 
