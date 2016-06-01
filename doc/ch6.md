@@ -1882,9 +1882,262 @@ Chapter 6. Operations on Objects
 
   Section 6.13. Hashtables
 
+    Hashtables represent sets of associations between arbitrary Scheme values. 
+    They serve essentially the same purpose as association lists (see page  165) but are typically much faster when large numbers of associations are involved.
 
+    procedure: (make-eq-hashtable) 
+    procedure: (make-eq-hashtable size) 
+    returns: a new mutable eq hashtable 
+    libraries: (rnrs hashtables), (rnrs)
 
-    
+    If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable should initially hold. 
+    Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the existing elements. 
+    Providing a nonzero size can help limit the amount of rehashing that must be done as the table is initially populated.
+
+    An eq hashtable compares keys using the eq? (pointer equality) procedure and typically employs a hash function based on object addresses. 
+    Its hash and equivalence functions are suitable for any Scheme object.
+
+    (define ht1 (make-eq-hashtable))
+    (define ht2 (make-eq-hashtable 32))
+
+    procedure: (make-eqv-hashtable) 
+    procedure: (make-eqv-hashtable size) 
+    returns: a new mutable eqv hashtable 
+    libraries: (rnrs hashtables), (rnrs)
+
+    If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable should initially hold. 
+    Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the existing elements. 
+    Providing a nonzero size can help limit the amount of rehashing that must be done as the table is initially populated.
+
+    An eqv hashtable compares keys using the eqv? procedure and typically employs a hash function based on object addresses for objects that are identifiable with eq?. Its hash and equivalence functions are suitable for any Scheme object.
+
+    procedure: (make-hashtable hash equiv?) 
+    procedure: (make-hashtable hash equiv? size) 
+    returns: a new mutable hashtable 
+    libraries: (rnrs hashtables), (rnrs)
+
+    hash and equiv? must be procedures. If size is provided, it must be a nonnegative exact integer indicating approximately how many elements the hashtable should initially hold. 
+    Hashtables grow as needed, but when the hashtable grows it generally must rehash all of the existing elements. 
+    Providing a nonzero size can help limit the amount of rehashing that must be done as the table is initially populated.
+
+    The new hashtable computes hash values using hash and compares keys using equiv?, neither of which should modify the hashtable. 
+    equiv? should compare two keys and return false only if the two keys should be distinguished. 
+    hash should accept a key as an argument and return a nonnegative exact integer value that is the same each time it is called with arguments that equiv? does not distinguish. 
+    The hash and equiv? procedures need not accept arbitrary inputs as long as the hashtable is used only for keys that they do accept, 
+    and both procedures may assume that the keys are immutable as long as the keys are not modified while they have associations stored in the table. 
+    The hashtable operation may call hash and equiv? once, not at all, or multiple times for each hashtable operation.
+
+    (define ht (make-hashtable string-hash string=?))
+
+    procedure: (hashtable-mutable? hashtable) 
+    returns: #t if hashtable is mutable, #f otherwise 
+    libraries: (rnrs hashtables), (rnrs)
+
+    Hashtables returned by one of the hashtable creation procedures above are mutable, but those created by hashtable-copy may be immutable. 
+    Immutable hashtables cannot be altered by any of the procedures hashtable-set!, hashtable-update!, hashtable-delete!, or hashtable-clear!.
+
+    (hashtable-mutable? (make-eq-hashtable)) <graphic> #t
+    (hashtable-mutable? (hashtable-copy (make-eq-hashtable))) <graphic> #f
+
+    procedure: (hashtable-hash-function hashtable) 
+    returns: the hash function associated with hashtable 
+    procedure: (hashtable-equivalence-function hashtable) 
+    returns: the equivalence function associated with hashtable 
+    libraries: (rnrs hashtables), (rnrs)
+
+    hashtable-hash-function returns #f for eq and eqv hashtables.
+
+    (define ht (make-eq-hashtable))
+    (hashtable-hash-function ht) <graphic> #f
+    (eq? (hashtable-equivalence-function ht) eq?) <graphic> #t 
+
+    (define ht (make-hashtable string-hash string=?))
+    (eq? (hashtable-hash-function ht) string-hash) <graphic> #t
+    (eq? (hashtable-equivalence-function ht) string=?) <graphic> #t
+
+    procedure: (equal-hash obj) 
+    procedure: (string-hash string) 
+    procedure: (string-ci-hash string) 
+    procedure: (symbol-hash symbol) 
+    returns: an exact nonnegative integer hash value 
+    libraries: (rnrs hashtables), (rnrs)
+
+    These procedures are hash functions suitable for use with the appropriate Scheme predicate: equal? for equal-hash, string=? for string-hash, string-ci=? for string-ci-hash, and symbol=? (or eq?) for symbol-hash. 
+    The hash values returned by equal-hash, string-hash, and string-ci-hash are typically dependent on the current structure and contents of the input values and are thus unsuitable if keys are modified while they have associations in a hashtable.
+
+    procedure: (hashtable-set! hashtable key obj) 
+    returns: unspecified 
+    libraries: (rnrs hashtables), (rnrs)
+
+    hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence functions. obj may be any Scheme object.
+
+    hashtable-set! associates key with obj in hashtable, replacing the existing association, if any.
+
+    (define ht (make-eq-hashtable))
+    (hashtable-set! ht 'a 73)
+
+    procedure: (hashtable-ref hashtable key default) 
+    returns: see below 
+    libraries: (rnrs hashtables), (rnrs)
+
+    key should be an appropriate key for the hashtable's hash and equivalence functions. default may be any Scheme object.
+
+    hashtable-ref returns the value associated with key in hashtable. If no value is associated with key in hashtable, hashtable-ref returns default.
+
+    (define p1 (cons 'a 'b))
+    (define p2 (cons 'a 'b)) 
+
+    (define eqht (make-eq-hashtable))
+    (hashtable-set! eqht p1 73)
+    (hashtable-ref eqht p1 55) <graphic> 73
+    (hashtable-ref eqht p2 55) <graphic> 55 
+
+    (define equalht (make-hashtable equal-hash equal?))
+    (hashtable-set! equalht p1 73)
+    (hashtable-ref equalht p1 55) <graphic> 73
+    (hashtable-ref equalht p2 55) <graphic> 73
+
+    procedure: (hashtable-contains? hashtable key) 
+    returns: #t if an association for key exists in hashtable, #f otherwise 
+    libraries: (rnrs hashtables), (rnrs)
+
+    key should be an appropriate key for the hashtable's hash and equivalence functions.
+
+    (define ht (make-eq-hashtable))
+    (define p1 (cons 'a 'b))
+    (define p2 (cons 'a 'b))
+    (hashtable-set! ht p1 73)
+    (hashtable-contains? ht p1) <graphic> #t
+    (hashtable-contains? ht p2) <graphic> #f
+
+    procedure: (hashtable-update! hashtable key procedure default) 
+    returns: unspecified 
+    libraries: (rnrs hashtables), (rnrs)
+
+    hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence functions. default may be any Scheme object. procedure should accept one argument, should return one value, and should not modify hashtable.
+
+    hashtable-update! applies procedure to the value associated with key in hashtable, or to default if no value is associated with key in hashtable. If procedure returns, hashtable-update! associates key with the value returned by procedure, replacing the old association, if any.
+
+    A version of hashtable-update! that does not verify that it receives arguments of the proper type might be defined as follows.
+
+    (define hashtable-update!
+      (lambda (ht key proc value)
+        (hashtable-set! ht key
+          (proc (hashtable-ref ht key value)))))
+
+    An implementation may, however, be able to implement hashtable-update! more efficiently by avoiding multiple hash computations and hashtable lookups.
+
+    (define ht (make-eq-hashtable))
+    (hashtable-update! ht 'a
+      (lambda (x) (* x 2))
+      55)
+    (hashtable-ref ht 'a 0) <graphic> 110
+    (hashtable-update! ht 'a
+      (lambda (x) (* x 2))
+      0)
+    (hashtable-ref ht 'a 0) <graphic> 220
+
+    procedure: (hashtable-delete! hashtable key) 
+    returns: unspecified 
+    libraries: (rnrs hashtables), (rnrs)
+
+    hashtable must be a mutable hashtable. key should be an appropriate key for the hashtable's hash and equivalence functions.
+
+    hashtable-delete! drops any association for key from hashtable.
+
+    (define ht (make-eq-hashtable))
+    (define p1 (cons 'a 'b))
+    (define p2 (cons 'a 'b))
+    (hashtable-set! ht p1 73)
+    (hashtable-contains? ht p1) <graphic> #t
+    (hashtable-delete! ht p1)
+    (hashtable-contains? ht p1) <graphic> #f
+    (hashtable-contains? ht p2) <graphic> #f
+    (hashtable-delete! ht p2)
+
+    procedure: (hashtable-size hashtable) 
+    returns: number of entries in hashtable 
+    libraries: (rnrs hashtables), (rnrs)
+
+    (define ht (make-eq-hashtable))
+    (define p1 (cons 'a 'b))
+    (define p2 (cons 'a 'b))
+    (hashtable-size ht) <graphic> 0
+    (hashtable-set! ht p1 73)
+    (hashtable-size ht) <graphic> 1
+    (hashtable-delete! ht p1)
+    (hashtable-size ht) <graphic> 0
+
+    procedure: (hashtable-copy hashtable) 
+    procedure: (hashtable-copy hashtable mutable?) 
+    returns: a new hashtable containing the same entries as hashtable 
+    libraries: (rnrs hashtables), (rnrs)
+
+    If mutable? is present and not false, the copy is mutable; otherwise, the copy is immutable.
+
+    (define ht (make-eq-hashtable))
+    (define p1 (cons 'a 'b))
+    (hashtable-set! ht p1 "c")
+    (define ht-copy (hashtable-copy ht))
+    (hashtable-mutable? ht-copy) <graphic> #f
+    (hashtable-delete! ht p1)
+    (hashtable-ref ht p1 #f) <graphic> #f
+    (hashtable-delete! ht-copy p1) <graphic> exception: not mutable
+    (hashtable-ref ht-copy p1 #f) <graphic> "c"
+
+    procedure: (hashtable-clear! hashtable) 
+    procedure: (hashtable-clear! hashtable size) 
+    returns: unspecified 
+    libraries: (rnrs hashtables), (rnrs)
+
+    hashtable must be a mutable hashtable. If size is provided, it must be a nonnegative exact integer.
+
+    hashtable-clear! removes all entries from hashtable. If size is provided, the hashtable is reset to the given size, as if newly created by one of the hashtable creation operations with size argument size.
+
+    (define ht (make-eq-hashtable))
+    (define p1 (cons 'a 'b))
+    (define p2 (cons 'a 'b))
+    (hashtable-set! ht p1 "first")
+    (hashtable-set! ht p2 "second")
+    (hashtable-size ht) <graphic> 2
+    (hashtable-clear! ht)
+    (hashtable-size ht) <graphic> 0
+    (hashtable-ref ht p1 #f) <graphic> #f
+
+    procedure: (hashtable-keys hashtable) 
+    returns: a vector containing the keys in hashtable 
+    libraries: (rnrs hashtables), (rnrs)
+
+    The keys may appear in any order in the returned vector.
+
+    (define ht (make-eq-hashtable))
+    (define p1 (cons 'a 'b))
+    (define p2 (cons 'a 'b))
+    (hashtable-set! ht p1 "one")
+    (hashtable-set! ht p2 "two")
+    (hashtable-set! ht 'q "three")
+    (hashtable-keys ht) <graphic> #((a . b) q (a . b))
+
+    procedure: (hashtable-entries hashtable) 
+    returns: two vectors: one of keys and a second of values 
+    libraries: (rnrs hashtables), (rnrs)
+
+    hashtable-entries returns two values. The first is a vector containing the keys in hashtable, and the second is a vector containing the corresponding values. The keys and values may appear in any order, but the order is the same for the keys and for the corresponding values.
+
+    (define ht (make-eq-hashtable))
+    (define p1 (cons 'a 'b))
+    (define p2 (cons 'a 'b))
+    (hashtable-set! ht p1 "one")
+    (hashtable-set! ht p2 "two")
+    (hashtable-set! ht 'q "three")
+    (hashtable-entries ht) <graphic> #((a . b) q (a . b))
+                            #("two" "three" "one")
+
+  Section 6.14. Enumerations
+
+    ...
+    ...
+    ...
 
 
 
