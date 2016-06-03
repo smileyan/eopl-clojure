@@ -67,4 +67,69 @@ Chapter 7. Input and Output
 
   Section 7.1. Transcoders
 
+    As described above, transcoders encapsulate three values: a codec, an eol style, and an error-handling mode. 
+    This section describes the procedures that create or operate on transcoders and the values that transcoders encapsulate.
+
+    procedure: (make-transcoder codec) 
+    procedure: (make-transcoder codec eol-style) 
+    procedure: (make-transcoder codec eol-style error-handling-mode) 
+    returns: a transcoder encapsulating codec, eol-style, and error-handling-mode 
+    libraries: (rnrs io ports), (rnrs)
+
+    eol-style must be a valid eol-style symbol (lf, cr, nel, ls, crlf, crnel, or none); it defaults to the native eol-style for the platform. 
+    error-handling-mode must be a valid error-handling-mode symbol (ignore, raise, or replace) and defaults to replace.
+
+    procedure: (transcoder-codec transcoder) 
+    returns: the codec encapsulated in transcoder 
+    procedure: (transcoder-eol-style transcoder) 
+    returns: the eol-style symbol encapsulated in transcoder 
+    procedure: (transcoder-error-handling-mode transcoder) 
+    returns: the error-handling-mode symbol encapsulated in transcoder 
+    libraries: (rnrs io ports), (rnrs)
+
+    procedure: (native-transcoder) 
+    returns: the native transcoder 
+    libraries: (rnrs io ports), (rnrs)
+
+    The native transcoder is implementation-dependent and may vary by platform or locale.
+
+    procedure: (latin-1-codec) 
+    returns: a codec for ISO 8859-1 (Latin 1) character encodings 
+    procedure: (utf-8-codec) 
+    returns: a codec for Unicode UTF-8 character encodings 
+    procedure: (utf-16-codec) 
+    returns: a codec for Unicode UTF-16 character encodings 
+    libraries: (rnrs io ports), (rnrs)
+
+    syntax: (eol-style symbol) 
+    returns: symbol 
+    libraries: (rnrs io ports), (rnrs)
+
+    symbol must be one of the symbols lf, cr, nel, ls, crlf, crnel, or none. 
+    The expression (eol-style symbol) is equivalent to the expression (quote symbol) except the former checks at expansion time that symbol is one of the eol-style symbols. 
+    The eol-style syntax provides useful documentation as well.
+
+    (eol-style crlf) <graphic> crlf
+    (eol-style lfcr) <graphic> syntax violation
+
+    procedure: (native-eol-style) 
+    returns: the native eol style 
+    libraries: (rnrs io ports), (rnrs)
+
+    The native eol style is implementation-dependent and may vary by platform or locale.
+
+    syntax: (error-handling-mode symbol) 
+    returns: symbol 
+    libraries: (rnrs io ports), (rnrs)
+
+    symbol must be one of the symbols ignore, raise, or replace. 
+    The expression (error-handling-mode symbol) is equivalent to the expression (quote symbol) except that the former checks at expansion time that symbol is one of the error-handling-mode symbols. 
+    The error-handling-mode syntax provides useful documentation as well.
+
+    (error-handling-mode replace) <graphic> replace
+    (error-handling-mode relpace) <graphic> syntax violation
+
+  Section 7.2. Opening Files
+
+
 
