@@ -131,5 +131,47 @@ Chapter 7. Input and Output
 
   Section 7.2. Opening Files
 
+    The procedures in this section are used for opening file ports. 
+    Procedures for opening other kinds of ports, e.g., string ports or custom ports, are described in subsequent sections.
+
+    Each of the file-open operations accepts a path argument that names the file to be opened. 
+    It must be a string or some other implementation-dependent value that names a file.
+
+    Some of the file-open procedures accept optional options, b-mode, and ?transcoder arguments. 
+    options must be an enumeration set over the symbols constituting valid file options described in the file-options entry below, 
+    and it defaults to the value of (file-options). 
+    b-mode must be a valid buffer mode described in the buffer-mode entry below, and it defaults to block. 
+    ?transcoder must be a transcoder or #f; if it is a transcoder, the open operation returns a transcoded port for the underlying binary file, 
+    while if it is #f (the default), the open operation returns a binary port.
+
+    Binary ports created by the procedures in this section support the port-position and set-port-position! operations. 
+    Whether textual ports created by the procedures in this section support these operations is implementation-dependent.
+
+    syntax: (file-options symbol ...) 
+    returns: a file-options enumeration set 
+    libraries: (rnrs io ports), (rnrs)
+
+    File-options enumeration sets may be passed to file-open operations to control aspects of the open operation. 
+    There are three standard file options: no-create, no-fail, and no-truncate, 
+    which affect only file-open operations that create output (including input/output) ports.
+
+    With the default file options, i.e., the value of (file-options), when a program attempts to open a file for output, 
+    an exception is raised with condition type i/o-file-already-exists if the file already exists, 
+    and the file is created if it does not already exist. 
+    If the no-fail option is included, no exception is raised if the file already exists; instead, the file is opened and truncated to zero length. 
+    If the no-create option is included, the file is not created if it does not exist; 
+    instead, an exception is raised with condition type i/o-file-does-not-exist. 
+    The no-create option implies the no-fail option. 
+    The no-truncate option is relevant only if the no-fail option is included or implied, in which case if an existing file is opened, 
+    it is not truncated, but the port's position is still set to the beginning of the file.
+
+    It is perhaps easier to imagine that the default file options are the imaginary option symbols create, fail-if-exists, and truncate; 
+    no-create removes create, no-fail removes fail-if-exists, and no-truncate removes truncate.
+
+    Implementations may support additional file option symbols. 
+    Chez Scheme, for example, supports options that control whether the file is or should be compressed, 
+    whether it is locked for exclusive access, and what permissions are given to the file if it is created [9].
+
+
 
 
