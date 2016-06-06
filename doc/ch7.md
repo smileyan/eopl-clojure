@@ -172,6 +172,64 @@ Chapter 7. Input and Output
     Chez Scheme, for example, supports options that control whether the file is or should be compressed, 
     whether it is locked for exclusive access, and what permissions are given to the file if it is created [9].
 
+    syntax: (buffer-mode symbol) 
+    returns: symbol 
+    libraries: (rnrs io ports), (rnrs)
+
+    symbol must be one of the symbols block, line, or none. 
+    The expression (buffer-mode symbol) is equivalent to the expression (quote symbol) except 
+    that the former checks at expansion time that symbol is one of the buffer-mode symbols. 
+    The buffer-mode syntax provides useful documentation as well.
+
+    (buffer-mode block) <graphic> block
+    (buffer-mode cushion) <graphic> syntax violation
+
+    syntax: (buffer-mode? obj) 
+    returns: #t if obj is a valid buffer mode, #f otherwise 
+    libraries: (rnrs io ports), (rnrs)
+
+    (buffer-mode? 'block) <graphic> #t
+    (buffer-mode? 'line) <graphic> #t
+    (buffer-mode? 'none) <graphic> #t
+    (buffer-mode? 'something-else) <graphic> #f
+
+    procedure: (open-file-input-port path) 
+    procedure: (open-file-input-port path options) 
+    procedure: (open-file-input-port path options b-mode) 
+    procedure: (open-file-input-port path options b-mode ?transcoder) 
+    returns: a new input port for the named file 
+    libraries: (rnrs io ports), (rnrs)
+
+    If ?transcoder is present and not #f, it must be a transcoder, 
+    and this procedure returns a textual input port whose transcoder is ?transcoder. 
+    Otherwise, this procedure returns a binary input port. 
+    See the lead-in to this section for a description of the constraints on and effects of the other arguments.
+
+    procedure: (open-file-output-port path) 
+    procedure: (open-file-output-port path options) 
+    procedure: (open-file-output-port path options b-mode) 
+    procedure: (open-file-output-port path options b-mode ?transcoder) 
+    returns: a new output port for the named file 
+    libraries: (rnrs io ports), (rnrs)
+
+    If ?transcoder is present and not #f, it must be a transcoder, and this procedure returns a textual output port whose transcoder is ?transcoder. 
+    Otherwise, this procedure returns a binary output port. 
+    See the lead-in to this section for a description of the constraints on and effects of the other arguments.
+
+    procedure: (open-file-input/output-port path) 
+    procedure: (open-file-input/output-port path options) 
+    procedure: (open-file-input/output-port path options b-mode) 
+    procedure: (open-file-input/output-port path options b-mode ?transcoder) 
+    returns: a new input/output port for the named file 
+    libraries: (rnrs io ports), (rnrs)
+
+    If ?transcoder is present and not #f, it must be a transcoder, and this procedure returns a textual input/output port whose transcoder is ?transcoder. 
+    Otherwise, this procedure returns a binary input/output port. 
+    See the lead-in to this section for a description of the constraints on and effects of the other arguments.
+
+  Section 7.3. Standard Ports
+
+
 
 
 
