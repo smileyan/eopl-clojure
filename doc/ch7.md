@@ -229,6 +229,33 @@ Chapter 7. Input and Output
 
   Section 7.3. Standard Ports
 
+    The procedures described in this section return ports that are attached to a process's standard input, standard output, and standard error streams. 
+    The first set returns "ready-made" textual ports with implementation-dependent transcoders (if any) and buffer modes. 
+    The second set creates fresh binary ports and can be used either for binary input/output or, with the help of transcoded-port, for textual input/output with program-supplied transcoders and buffer modes.
+
+    procedure: (current-input-port) 
+    returns: the current input port 
+    procedure: (current-output-port) 
+    returns: the current output port 
+    procedure: (current-error-port) 
+    returns: the current error port 
+    libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+
+    The current-input, current-output, and current-error ports return pre-built textual ports that are initially associated with a process's standard input, standard output, and standard error streams.
+
+    The values returned by current-input-port and current-output-port can be altered temporarily by the convenience I/O procedures with-input-from-file and with-output-to-file (Section 7.9).
+
+    procedure: (standard-input-port) 
+    returns: a fresh binary input port connected to the standard input stream 
+    procedure: (standard-output-port) 
+    returns: a fresh binary output port connected to the standard output stream 
+    procedure: (standard-error-port) 
+    returns: a fresh binary output port connected to the standard error stream 
+    libraries: (rnrs io ports), (rnrs)
+
+    Because ports may be buffered, confusion can result if operations on more than one port attached to one of a process's standard streams are interleaved. 
+    Thus, these procedures are typically appropriate only when a program no longer needs to use any existing ports attached to the standard streams.
+
 
 
 
