@@ -256,6 +256,117 @@ Chapter 7. Input and Output
     Because ports may be buffered, confusion can result if operations on more than one port attached to one of a process's standard streams are interleaved. 
     Thus, these procedures are typically appropriate only when a program no longer needs to use any existing ports attached to the standard streams.
 
+  Section 7.4. String and Bytevector Ports
+
+    The procedures in this section allow bytevectors and strings to be used as input or output streams.
+
+    Binary ports created by the procedures in this section support the port-position and set-port-position! operations. 
+    Whether textual ports created by the procedures in this section support these operations is implementation-dependent.
+
+    procedure: (open-bytevector-input-port bytevector) 
+    procedure: (open-bytevector-input-port bytevector ?transcoder) 
+    returns: a new input port that draws input from bytevector 
+    libraries: (rnrs io ports), (rnrs)
+
+    If ?transcoder is present and not #f, it must be a transcoder, and this procedure returns a textual input port whose transcoder is ?transcoder. Otherwise, this procedure returns a binary input port.
+
+    The effect of modifying bytevector after this procedure is called is unspecified.
+
+    (let ([ip (open-bytevector-input-port #vu8(1 2))])
+      (let* ([x1 (get-u8 ip)] [x2 (get-u8 ip)] [x3 (get-u8 ip)])
+        (list x1 x2 (eof-object? x3)))) <graphic> (1 2 #t)
+
+    There is no need to close a bytevector port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, 
+    and an open bytevector port does not tie up any operating system resources.
+
+    procedure: (open-string-input-port string) 
+    returns: a new textual input port that draws input from string 
+    libraries: (rnrs io ports), (rnrs)
+
+    The effect of modifying string after this procedure is called is unspecified. 
+    The new port may or may not have a transcoder, and if it does, the transcoder is implementation-dependent. 
+    While not required, implementations are encouraged to support port-position and set-port-position! for string ports.
+
+    (get-line (open-string-input-port "hi.\nwhat's up?\n")) <graphic> "hi."
+
+    There is no need to close a string port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, 
+    and an open string port does not tie up any operating system resources.
+
+    procedure: (open-bytevector-output-port) 
+    procedure: (open-bytevector-output-port ?transcoder) 
+    returns: two values, a new output port and an extraction procedure 
+    libraries: (rnrs io ports), (rnrs)
+
+    If ?transcoder is present and not #f, it must be a transcoder, and the port value is a textual output port whose transcoder is ?transcoder. Otherwise, the port value is a binary output port.
+
+    The extraction procedure is a procedure that, when called without arguments, creates a bytevector containing the accumulated bytes in the port, 
+    clears the port of its accumulated bytes, resets its position to zero, and returns the bytevector. 
+    The accumulated bytes include any bytes written beyond the end of the current position, if the position has been set back from its maximum extent.
+
+    (let-values ([(op g) (open-bytevector-output-port)])
+      (put-u8 op 15)
+      (put-u8 op 73)
+      (put-u8 op 115)
+      (set-port-position! op 2)
+      (let ([bv1 (g)])
+        (put-u8 op 27)
+        (list bv1 (g)))) <graphic> (#vu8(15 73 115) #vu8(27))
+
+    There is no need to close a bytevector port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, 
+    and an open bytevector port does not tie up any operating system resources.
+
+    procedure: (open-string-output-port) 
+    returns: two values, a new textual output port and an extraction procedure 
+    libraries: (rnrs io ports), (rnrs)
+
+    The extraction procedure is a procedure that, when called without arguments, creates a string containing the accumulated characters in the port, 
+    clears the port of its accumulated characters, resets its position to zero, and returns the string. 
+    The accumulated characters include any characters written beyond the end of the current position, if the position has been set back from its maximum extent. 
+    While not required, implementations are encouraged to support port-position and set-port-position! for string ports.
+
+    (let-values ([(op g) (open-string-output-port)])
+      (put-string op "some data")
+      (let ([str1 (g)])
+        (put-string op "new stuff")
+        (list str1 (g)))) <graphic> ("some data" "new stuff")
+
+    There is no need to close a string port; it's storage will be reclaimed automatically when it is no longer needed, as with any other object, 
+    and an open string port does not tie up any operating system resources.
+
+    procedure: (call-with-bytevector-output-port procedure) 
+    procedure: (call-with-bytevector-output-port procedure ?transcoder) 
+    returns: a bytevector containing the accumulated bytes 
+    libraries: (rnrs io ports), (rnrs)
+
+    If ?transcoder is present and not #f, it must be a transcoder, and procedure is called with a textual bytevector output port whose transcoder is ?transcoder. 
+    Otherwise, procedure is called with a binary bytevector output port. 
+    If procedure returns, a bytevector containing the bytes accumulated in the port is created, the accumulated bytes are cleared from the port, 
+    the port's position is reset to zero, and the bytevector is returned from call-with-bytevector-output-port. 
+    These actions occur each time procedure returns, if it returns multiple times due to the invocation of a continuation created while procedure is active.
+
+    (let ([tx (make-transcoder (latin-1-codec) (eol-style lf)
+                (error-handling-mode replace))])
+      (call-with-bytevector-output-port
+        (lambda (p) (put-string p "abc"))
+        tx)) <graphic> #vu8(97 98 99)
+
+    procedure: (call-with-string-output-port procedure) 
+    returns: a string containing the accumulated characters 
+    libraries: (rnrs io ports), (rnrs)
+
+    procedure is called with one argument, a string output port. 
+    If procedure returns, a string containing the characters accumulated in the port is created, 
+    the accumulated characters are cleared from the port, the port's position is reset to zero, and the string is returned from call-with-string-output-port. 
+    These actions occur each time procedure returns, if it returns multiple times due to the invocation of a continuation created while procedure is active.
+
+    call-with-string-output-port can be used along with put-datum to define a procedure, object->string, that returns a string containing the printed representation of an object.
+
+    (define (object->string x)
+      (call-with-string-output-port
+        (lambda (p) (put-datum p x)))) 
+
+    (object->string (cons 'a '(b c))) <graphic> "(a b c)"
+
 
 
 
