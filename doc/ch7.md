@@ -367,7 +367,78 @@ Chapter 7. Input and Output
 
     (object->string (cons 'a '(b c))) <graphic> "(a b c)"
 
+  Section 7.5. Opening Custom Ports
 
+    procedure: (make-custom-binary-input-port id r! gp sp! close) 
+    returns: a new custom binary input port 
+    procedure: (make-custom-binary-output-port id w! gp sp! close) 
+    returns: a new custom binary output port 
+    procedure: (make-custom-binary-input/output-port id r! w! gp sp! close) 
+    returns: a new custom binary input/output port 
+    libraries: (rnrs io ports), (rnrs)
+
+    These procedures allow programs to create ports from arbitrary byte streams. 
+    id must be a string naming the new port; the name is used for informational purposes only, and an implementation may choose to include it in the printed syntax, if any, of a custom port. 
+    r! and w! must be procedures, while gp, sp!, and close must each be a procedure or #f. These arguments are described below.
+
+    r!
+    is called to draw input from the custom port, e.g., to support get-u8 or get-bytevector-n. 
+    It is called with three arguments: bytevector, start, and n. start will be a nonnegative exact integer, n will be a positive exact integer, 
+    and the sum of start and n will not exceed the length of bytevector. 
+    If the byte stream is at end of file, r! should return exact 0. 
+    Otherwise, it should read at least one and at most n bytes from the stream, store these bytes in consecutive locations of bytevector starting at start, 
+    and return as an exact positive integer the number of bytes actually read.
+    w!
+    is called to send output to the port, e.g., to support put-u8 or put-bytevector. 
+    It is called with three arguments: bytevector, start, and n. start and n will be nonnegative exact integers, and the sum of start and n will not exceed the length of bytevector. 
+    w! should write up to n consecutive bytes from bytevector starting at start and return, as an exact nonnegative integer, the number of bytes actually written.
+    gp
+    is called to query the port's position. If it is #f, the port will not support port-position. 
+    If it is not #f, it will be passed zero arguments and should return the current position as a displacement in bytes from the start of the byte stream as an exact nonnegative integer.
+    sp!
+    is called to set the port's position. 
+    If it is #f, the port will not support set-port-position!. 
+    If it is not #f, it will be passed one argument, an exact nonnegative integer representing the new position as a displacement in bytes from the start of the byte stream, and it should set the position to this value.
+    close
+    is called to close the byte stream. 
+    If it is #f, no action will be taken to close the byte stream when the new port is closed. 
+    If it is not #f, it will be passed zero arguments and should take whatever actions are necessary to close the byte stream.
+    If the new port is an input/output port and does not provide either a gp or sp! procedure, 
+    it may not be possible for the implementation to position the port properly if an output operation occurs after an input operation, 
+    due to input buffering that must be done to support lookahead-u8 and is often done anyway for efficiency. 
+    For the same reason, a call to port-position after an input operation may not return an accurate position if the sp! procedure is not provided. 
+    Thus, programs that create custom binary input/output ports should generally provide both gp and sp! procedures.
+
+    procedure: (make-custom-textual-input-port id r! gp sp! close) 
+    returns: a new custom textual input port 
+    procedure: (make-custom-textual-output-port id w! gp sp! close) 
+    returns: a new custom textual output port 
+    procedure: (make-custom-textual-input/output-port id r! w! gp sp! close) 
+    returns: a new custom textual input/output port 
+    libraries: (rnrs io ports), (rnrs)
+
+    These procedures allow programs to create ports from arbitrary character streams. 
+    id must be a string naming the new port; the name is used for informational purposes only, and an implementation may choose to include it in the printed syntax, if any, of a custom port. 
+    r! and w! must be procedures, while gp, sp!, and close must each be a procedure or #f. These arguments are described below.
+
+    r!
+    is called to draw input from the port, e.g., to support get-char or get-string-n. 
+    It is called with three arguments: string, start, and n. start will be a nonnegative exact integer, n will be a positive exact integer, and the sum of start and n will not exceed the length of string. 
+    If the character stream is at end of file, r! should return exact 0. 
+    Otherwise, it should read at least one and at most n characters from the stream, store these characters in consecutive locations of string starting at start, and return as an exact positive integer the number of characters actually read.
+    w!
+    is called to send output to the port, e.g., to support put-char or put-string. It is called with three arguments: string, start, and n. start and n will be nonnegative exact integers, and the sum of start and n will not exceed the length of string. w! should write up to n consecutive characters from string starting at start and return, as an exact nonnegative integer, the number of characters actually written.
+    gp
+    is called to query the port's position. If it is #f, the port will not support port-position. If it is not #f, it will be passed zero arguments and should return the current position, which may be an arbitrary value.
+    sp!
+    is called to set the port's position. If it is #f, the port will not support set-port-position!. If it is not #f, it will be passed one argument, pos, a value representing the new position. If pos is the result of a previous call to gp, sp! should set the position to pos.
+    close
+    is called to close the character stream. If it is #f, no action will be taken to close the character stream when the new port is closed. If it is not #f, it will be passed zero arguments and should take whatever actions are necessary to close the character stream.
+    If the new port is an input/output port, it may not be possible for the implementation to position the port properly if an output operation occurs after an input operation, even if the gp and sp! procedures are provided, due to input buffering that must be done to support lookahead-char and is often done anyway for efficiency. Since the representations of port positions are not specified, it is not possible for the implementation to adjust the gp return value to account for the number of buffered characters. For the same reason, a call to port-position after an input operation may not return an accurate position, even if the sp! procedure is provided.
+
+    It should, however, be possible to perform output reliably after reading if the position is reset to the starting position. Thus, programs that create custom textual input/output ports should generally provide both gp and sp! procedures, and consumers of these ports should obtain the starting position via port-position before any input operations and reset the position back to the starting position before doing any output operations.
+
+  Section 7.6. Port Operations
 
 
 
