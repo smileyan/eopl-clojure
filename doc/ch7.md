@@ -440,5 +440,111 @@ Chapter 7. Input and Output
 
   Section 7.6. Port Operations
 
+    This section describes a variety of operations on ports that do not directly involve either reading from or writing to a port. 
+    The input and output operations are described in subsequent sections.
 
+    procedure: (port? obj) 
+    returns: #t if obj is a port, #f otherwise 
+    libraries: (rnrs io ports), (rnrs)
+
+    procedure: (input-port? obj) 
+    returns: #t if obj is an input or input/output port, #f otherwise 
+    procedure: (output-port? obj) 
+    returns: #t if obj is an output or input/output port, #f otherwise 
+    libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+
+    procedure: (binary-port? obj) 
+    returns: #t if obj is a binary port, #f otherwise 
+    procedure: (textual-port? obj) 
+    returns: #t if obj is a textual port, #f otherwise 
+    libraries: (rnrs io ports), (rnrs)
+
+    procedure: (close-port port) 
+    returns: unspecified 
+    libraries: (rnrs io ports), (rnrs)
+
+    If port is not already closed, close-port closes it, first flushing any buffered bytes or characters to the underlying stream if the port is an output port. 
+    Once a port has been closed, no more input or output operations may be performed on the port. 
+    Because the operating system may place limits on the number of file ports open at one time or restrict access to an open file, 
+    it is good practice to close any file port that will no longer be used for input or output. 
+    If the port is an output port, closing the port explicitly also ensures that buffered data is written to the underlying stream. 
+    Some Scheme implementations close file ports automatically after they become inaccessible to the program or when the Scheme program exits, 
+    but it is best to close file ports explicitly whenever possible. Closing a port that has already been closed has no effect.
+
+    procedure: (transcoded-port binary-port transcoder) 
+    returns: a new textual port with the same byte stream as binary-port 
+    libraries: (rnrs io ports), (rnrs)
+
+    This procedure returns a new textual port with transcoder transcoder and the same underlying byte stream as binary-port, positioned at the current position of binary-port.
+
+    As a side effect of creating the textual port, binary-port is closed to prevent read or write operations on binary-port from interfering with read and write operations on the new textual port. 
+    The underlying byte stream remains open, however, until the textual port is closed.
+
+    procedure: (port-transcoder port) 
+    returns: the transcoder associated with port if any, #f otherwise 
+    libraries: (rnrs io ports), (rnrs)
+
+    This procedure always returns #f for binary ports and may return #f for some textual ports.
+
+    procedure: (port-position port) 
+    returns: the port's current position 
+    procedure: (port-has-port-position? port) 
+    returns: #t if the port supports port-position, #f otherwise 
+    libraries: (rnrs io ports), (rnrs)
+
+    A port may allow queries to determine its current position in the underlying stream of bytes or characters. 
+    If so, the procedure port-has-port-position? returns #t and port-position returns the current position. 
+    For binary ports, the position is always an exact nonnegative integer byte displacement from the start of the byte stream. 
+    For textual ports, the representation of a position is unspecified; it may not be an exact nonnegative integer and, even if it is, 
+    it may not represent either a byte or character displacement in the underlying stream. 
+    The position may be used at some later time to reset the position if the port supports set-port-position!. 
+    If port-position is called on a port that does not support it, an exception with condition type &assertion is raised.
+
+    procedure: (set-port-position! port pos) 
+    returns: unspecified 
+    procedure: (port-has-set-port-position!? port) 
+    returns: #t if the port supports set-port-position!, #f otherwise 
+    libraries: (rnrs io ports), (rnrs)
+
+    A port may allow its current position to be moved directly to a different position in the underlying stream of bytes or characters. 
+    If so, the procedure port-has-set-port-position!? returns #t and set-port-position! changes the current position. 
+    For binary ports, the position pos must be an exact nonnegative integer byte displacement from the start of the byte stream. 
+    For textual ports, the representation of a position is unspecified, as described in the entry for port-position above, but pos must be an appropriate position for the textual port, 
+    which is usually guaranteed to be the case only if it was obtained from a call to port-position on the same port. 
+    If set-port-position! is called on a port that does not support it, an exception with condition type &assertion is raised.
+
+    If port is a binary output port and the position is set beyond the current end of the data in the underlying stream, the stream is not extended until new data is written at that position. 
+    If new data is written at that position, the contents of each intervening position is unspecified. 
+    Binary ports created with open-file-output-port and open-file-input/output-port can always be extended in this manner within the limits of the underlying operating system. 
+    In other cases, attempts to set the port beyond the current end of data in the underlying object may result in an exception with condition type &i/o-invalid-position.
+
+    procedure: (call-with-port port procedure) 
+    returns: the values returned by procedure 
+    libraries: (rnrs io ports), (rnrs)
+
+    call-with-port calls procedure with port as the only argument. If procedure returns, call-with-port closes the port and returns the values returned by procedure.
+
+    call-with-port does not automatically close the port if a continuation created outside of procedure is invoked, 
+    since it is possible that another continuation created inside of procedure will be invoked at a later time, returning control to procedure. 
+    If procedure does not return, an implementation is free to close the port only if it can prove that the output port is no longer accessible.
+
+    The example below copies the contents of infile to outfile, overwriting outfile if it exists. Unless an error occurs, the ports are closed after the copy has been completed.
+
+    (call-with-port (open-file-input-port "infile" (file-options)
+                      (buffer-mode block) (native-transcoder))
+      (lambda (ip)
+        (call-with-port (open-file-output-port "outfile"
+                          (file-options no-fail)
+                          (buffer-mode block)
+                          (native-transcoder)) 
+          (lambda (op)
+            (do ([c (get-char ip) (get-char ip)])
+                ((eof-object? c))
+              (put-char op c))))))
+
+    A definition of call-with-port is given on page 135.
+
+    procedure: (output-port-buffer-mode port) 
+    returns: the symbol representing the buffer mode of port 
+    libraries: (rnrs io ports), (rnrs)
 
