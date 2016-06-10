@@ -548,3 +548,167 @@ Chapter 7. Input and Output
     returns: the symbol representing the buffer mode of port 
     libraries: (rnrs io ports), (rnrs)
 
+  Section 7.7. Input Operations
+
+    Procedures whose primary purpose is to read data from an input port are described in this section, along with related procedures for recognizing or creating end-of-file (eof) objects.
+
+    procedure: (eof-object? obj) 
+    returns: #t if obj is an eof object, #f otherwise 
+    libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+
+    The end-of-file object is returned by input operations, e.g., get-datum, when an input port has reached the end of input.
+
+    procedure: (eof-object) 
+    returns: the eof object 
+    libraries: (rnrs io ports), (rnrs io simple), (rnrs)
+
+    (eof-object? (eof-object)) <graphic> #t
+
+    procedure: (get-u8 binary-input-port) 
+    returns: the next byte from binary-input-port, or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If binary-input-port is at end of file, the eof object is returned. 
+    Otherwise, the next available byte is returned as an unsigned 8-bit quantity, i.e., an exact unsigned integer less than or equal to 255, and the port's position is advanced one byte.
+
+    procedure: (lookahead-u8 binary-input-port) 
+    returns: the next byte from binary-input-port, or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If binary-input-port is at end of file, the eof object is returned. 
+    Otherwise, the next available byte is returned as an unsigned 8-bit quantity, i.e., an exact unsigned integer less than or equal to 255. 
+    In contrast to get-u8, lookahead-u8 does not consume the byte it reads from the port, so if the next operation on the port is a call to lookahead-u8 or get-u8, the same byte is returned.
+
+    procedure: (get-bytevector-n binary-input-port n) 
+    returns: a nonempty bytevector containing up to n bytes, or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    n must be an exact nonnegative integer. If binary-input-port is at end of file, the eof object is returned. 
+    Otherwise, get-bytevector-n reads (as if with get-u8) as many bytes, up to n, as are available before the port is at end of file, and returns a new (nonempty) bytevector containing these bytes. The port's position is advanced past the bytes read.
+
+    procedure: (get-bytevector-n! binary-input-port bytevector start n) 
+    returns: the count of bytes read or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    start and n must be exact nonnegative integers, and the sum of start and n must not exceed the length of bytevector.
+
+    If binary-input-port is at end of file, the eof object is returned. 
+    Otherwise, get-bytevector-n! reads (as if with get-u8) as many bytes, up to n, as are available before the port is at end of file, 
+    stores the bytes in consecutive locations of bytevector starting at start, and returns the count of bytes read as an exact positive integer. The port's position is advanced past the bytes read.
+
+    procedure: (get-bytevector-some binary-input-port) 
+    returns: a nonempty bytevector or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-some reads (as if with get-u8) at least one byte and possibly more, and returns a bytevector containing these bytes. 
+    The port's position is advanced past the bytes read. The maximum number of bytes read by this operation is implementation-dependent.
+
+    procedure: (get-bytevector-all binary-input-port) 
+    returns: a nonempty bytevector or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If binary-input-port is at end of file, the eof object is returned. Otherwise, get-bytevector-all reads (as if with get-u8) all of the bytes available before the port is at end of file and returns a bytevector containing these bytes. The port's position is advanced past the bytes read.
+
+    procedure: (get-char textual-input-port) 
+    returns: the next character from textual-input-port, or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If textual-input-port is at end of file, the eof object is returned. Otherwise, the next available character is returned and the port's position is advanced one character. If textual-input-port is a transcoded port, the position in the underlying byte stream may advance by more than one byte.
+
+    procedure: (lookahead-char textual-input-port) 
+    returns: the next character from textual-input-port, or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If textual-input-port is at end of file, the eof object is returned. Otherwise, the next available character is returned. 
+    In contrast to get-char, lookahead-char does not consume the character it reads from the port, so if the next operation on the port is a call to lookahead-char or get-char, the same character is returned.
+
+    lookahead-char is provided for applications requiring one character of lookahead. 
+    The procedure get-word defined below returns the next word from a textual input port as a string, where a word is defined to be a sequence of alphabetic characters. Since get-word does not know until it sees one character beyond the word that it has read the entire word, it uses lookahead-char to determine the next character and get-char to consume the character.
+
+    (define get-word
+      (lambda (p)
+        (list->string
+          (let f ()
+            (let ([c (lookahead-char p)])
+              (cond
+                [(eof-object? c) '()]
+                [(char-alphabetic? c) (get-char p) (cons c (f))]
+                [else '()]))))))
+
+    procedure: (get-string-n textual-input-port n) 
+    returns: a nonempty string containing up to n characters, or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    n must be an exact nonnegative integer. If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-n reads (as if with get-char) as many characters, up to n, as are available before the port is at end of file, and returns a new (nonempty) string containing these characters. The port's position is advanced past the characters read.
+
+    procedure: (get-string-n! textual-input-port string start n) 
+    returns: the count of characters read or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    start and n must be exact nonnegative integers, and the sum of start and n must not exceed the length of string.
+
+    If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-n! reads (as if with get-char) as many characters, up to n, as are available before the port is at end of file, stores the characters in consecutive locations of string starting at start, and returns the count of characters read as an exact positive integer. The port's position is advanced past the characters read.
+
+    get-string-n! may be used to implement string-set! and string-fill!, as illustrated below, although this is not its primary purpose.
+
+    (define string-set!
+      (lambda (s i c)
+        (let ([sip (open-string-input-port (string c))])
+          (get-string-n! sip s i 1)
+        ; return unspecified values:
+          (if #f #f)))) 
+
+    (define string-fill!
+      (lambda (s c)
+        (let ([n (string-length s)])
+          (let ([sip (open-string-input-port (make-string n c))])
+            (get-string-n! sip s 0 n)
+          ; return unspecified values:
+            (if #f #f))))) 
+
+    (let ([x (make-string 3)])
+      (string-fill! x #\-)
+      (string-set! x 2 #\))
+      (string-set! x 0 #\;)
+      x) <graphic> ";-)"
+
+    procedure: (get-string-all textual-input-port) 
+    returns: a nonempty string or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If textual-input-port is at end of file, the eof object is returned. Otherwise, get-string-all reads (as if with get-char) all of the characters available before the port is at end of file and returns a string containing these characters. The port's position is advanced past the characters read.
+
+    procedure: (get-line textual-input-port) 
+    returns: a string or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    If textual-input-port is at end of file, the eof object is returned. Otherwise, get-line reads (as if with get-char) all of the characters available before the port is at end of file or a line-feed character has been read and returns a string containing all but the line-feed character of the characters read. The port's position is advanced past the characters read.
+
+    (let ([sip (open-string-input-port "one\ntwo\n")])
+      (let* ([s1 (get-line sip)] [s2 (get-line sip)])
+        (list s1 s2 (port-eof? sip)))) <graphic> ("one" "two" #t) 
+
+    (let ([sip (open-string-input-port "one\ntwo")])
+      (let* ([s1 (get-line sip)] [s2 (get-line sip)])
+        (list s1 s2 (port-eof? sip)))) <graphic> ("one" "two" #t)
+
+    procedure: (get-datum textual-input-port) 
+    returns: a Scheme datum object or the eof object 
+    libraries: (rnrs io ports), (rnrs)
+
+    This procedure scans past whitespace and comments to find the start of the external representation of a datum. If textual-input-port reaches end of file before the start of the external representation of a datum is found, the eof object is returned.
+
+    Otherwise, get-datum reads as many characters as necessary, and no more, to parse a single datum, and returns a newly allocated object whose structure is determined by the external representation. The port's position is advanced past the characters read. If an end-of-file is reached before the external representation of the datum is complete, or an unexpected character is read, an exception is raised with condition types &lexical and i/o-read.
+
+    (let ([sip (open-string-input-port "; a\n\n one (two)\n")])
+      (let* ([x1 (get-datum sip)]
+            [c1 (lookahead-char sip)]
+            [x2 (get-datum sip)])
+        (list x1 c1 x2 (port-eof? sip)))) <graphic> (one #\space (two) #f)
+
+    procedure: (port-eof? input-port) 
+    returns: #t if input-port is at end-of-file, #f otherwise 
+    libraries: (rnrs io ports), (rnrs)
+
+    This procedure is similar to lookahead-u8 on a binary input port or lookahead-char on a textual input port, except that instead of returning the next byte/character or eof object, it returns a boolean value to indicate whether the value would be the eof object.
+
