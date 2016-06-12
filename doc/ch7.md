@@ -712,3 +712,58 @@ Chapter 7. Input and Output
 
     This procedure is similar to lookahead-u8 on a binary input port or lookahead-char on a textual input port, except that instead of returning the next byte/character or eof object, it returns a boolean value to indicate whether the value would be the eof object.
 
+  Section 7.8. Output Operations
+
+    Procedures whose primary purpose is to send data to an output port are described in this section.
+
+    procedure: (put-u8 binary-output-port octet) 
+    returns: unspecified 
+    libraries: (rnrs io ports), (rnrs)
+
+    octet must be an exact nonnegative integer less than or equal to 255. 
+    This procedure writes octet to binary-output-port, advancing the port's position by one byte.
+
+    procedure: (put-bytevector binary-output-port bytevector) 
+    procedure: (put-bytevector binary-output-port bytevector start) 
+    procedure: (put-bytevector binary-output-port bytevector start n) 
+    returns: unspecified 
+    libraries: (rnrs io ports), (rnrs)
+
+    start and n must be nonnegative exact integers, and the sum of start and n must not exceed the length of bytevector. 
+    If not supplied, start defaults to zero and n defaults to the difference between the length of bytevector and start.
+
+    This procedure writes the n bytes of bytevector starting at start to the port and advances the its position past the end of the bytes written.
+
+    procedure: (put-char textual-output-port char) 
+    returns: unspecified 
+    libraries: (rnrs io ports), (rnrs)
+
+    This procedure writes char to textual-output-port, advancing the port's position by one character. 
+    If textual-output-port is a transcoded port, the position in the underlying byte stream may advance by more than one byte.
+
+    procedure: (put-string textual-output-port string) 
+    procedure: (put-string textual-output-port string start) 
+    procedure: (put-string textual-output-port string start n) 
+    returns: unspecified 
+    libraries: (rnrs io ports), (rnrs)
+
+    start and n must be nonnegative exact integers, and the sum of start and n must not exceed the length of string. If not supplied, start defaults to zero and n defaults to the difference between the length of string and start.
+
+    This procedure writes the n characters of string starting at start to the port and advances the its position past the end of the characters written.
+
+    procedure: (put-datum textual-output-port obj) 
+    returns: unspecified 
+    libraries: (rnrs io ports), (rnrs)
+
+    This procedure writes an external representation of obj to textual-output-port. 
+    If obj does not have an external representation as a datum, the behavior is unspecified. 
+    The precise external representation is implementation-dependent, but when obj does have an external representation as a datum, 
+    put-datum should produce a sequence of characters that can later be read by get-datum as an object equivalent (in the sense of equal?) to obj. 
+    See Section 12.5 for an implementation of put-datum, write, and display.
+
+    procedure: (flush-output-port output-port) 
+    returns: unspecified 
+    libraries: (rnrs io ports), (rnrs)
+
+    This procedure forces any bytes or characters in the buffer associated with output-port to be sent immediately to the underlying stream.
+
