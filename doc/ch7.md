@@ -767,3 +767,4 @@ Chapter 7. Input and Output
 
     This procedure forces any bytes or characters in the buffer associated with output-port to be sent immediately to the underlying stream.
 
+  Section 7.10. Filesystem Operations
