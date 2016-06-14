@@ -768,3 +768,22 @@ Chapter 7. Input and Output
     This procedure forces any bytes or characters in the buffer associated with output-port to be sent immediately to the underlying stream.
 
   Section 7.10. Filesystem Operations
+
+    Scheme has two standard operations, beyond file input/output, for interacting with the filesystem: file-exists? and delete-file. Most implementations support additional operations.
+
+    procedure: (file-exists? path) 
+    returns: #t if the file named by path exists, #f otherwise 
+    libraries: (rnrs files), (rnrs)
+
+    path must be a string or some other implementation-dependent value that names a file. Whether file-exists? follows symbolic links is unspecified.
+
+    procedure: (delete-file path) 
+    returns: unspecified 
+    libraries: (rnrs files), (rnrs)
+
+    path must be a string or some other implementation-dependent value that names a file. 
+    delete-file removes the file named by path if it exists and can be deleted, otherwise it raises an exception with condition type &i/o-filename. 
+    Whether delete-file follows symbolic links is unspecified.
+
+  Section 7.11. Bytevector/String Conversions
+
