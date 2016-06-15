@@ -787,3 +787,8 @@ Chapter 7. Input and Output
 
   Section 7.11. Bytevector/String Conversions
 
+    The procedures described in this section encode or decode character sequences, converting from strings to bytevectors or bytevectors to strings. 
+    They do not necessarily involve input/output, though they might be implemented using bytevector input and output ports.
+
+    The first two procedures, bytevector->string and string->bytevector, take an explicit transcoder argument that determines the character encodings, 
+    eol styles, and error-handling modes. The others perform specific Unicode conversions with an implicit eol-style of none and error-handling mode of replace. 
