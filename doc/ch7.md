@@ -792,3 +792,23 @@ Chapter 7. Input and Output
 
     The first two procedures, bytevector->string and string->bytevector, take an explicit transcoder argument that determines the character encodings, 
     eol styles, and error-handling modes. The others perform specific Unicode conversions with an implicit eol-style of none and error-handling mode of replace. 
+
+    procedure: (bytevector->string bytevector transcoder)
+    returns: a string containing the characters encoded in bytevector
+    libraries: (rnrs io ports), (rnrs)
+
+    This operation, at least in effect, creates a bytevector input port with the specified transcoder from which all of the available characters are read, as if by get-string-all, and placed into the output string.
+
+    (let ([tx (make-transcoder (utf-8-codec) (eol-style lf)
+                (error-handling-mode replace))])
+      (bytevector->string #vu8(97 98 99) tx)) <graphic> "abc"
+
+    procedure: (string->bytevector string transcoder)
+    returns: a bytevector containing the encodings of the characters in string
+    libraries: (rnrs io ports), (rnrs)
+
+    This operation, at least in effect, creates a bytevector output port with the specified transcoder to which all of the characters of string are written, then extracts a bytevector containing the accumulated bytes.
+
+    (let ([tx (make-transcoder (utf-8-codec) (eol-style none)
+                (error-handling-mode raise))])
+      (string->bytevector "abc" tx)) <graphic> #vu8(97 98 99) 
