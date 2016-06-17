@@ -812,3 +812,27 @@ Chapter 7. Input and Output
     (let ([tx (make-transcoder (utf-8-codec) (eol-style none)
                 (error-handling-mode raise))])
       (string->bytevector "abc" tx)) <graphic> #vu8(97 98 99) 
+
+    procedure: (string->utf8 string)
+    returns: a bytevector containing the UTF-8 encoding of string
+    libraries: (rnrs bytevectors), (rnrs)
+
+    procedure: (string->utf16 string)
+    procedure: (string->utf16 string endianness)
+    procedure: (string->utf32 string)
+    procedure: (string->utf32 string endianness)
+    returns: a bytevector containing the specified encoding of string
+    libraries: (rnrs bytevectors), (rnrs)
+
+    endianness must be one of the symbols big or little. If endianness is not provided or is the symbol big, string->utf16 returns the UTF-16BE encoding of string and string->utf32 returns the UTF-32BE encoding of string. If endianness is the symbol little, string->utf16 returns the UTF-16LE encoding of string and string->utf32 returns the UTF-32LE encoding of string. No byte-order mark is included in the encoding.
+
+    procedure: (utf8->string bytevector)
+    returns: a string containing the UTF-8 decoding of bytevector
+    libraries: (rnrs bytevectors), (rnrs)
+
+    procedure: (utf16->string bytevector endianness)
+    procedure: (utf16->string bytevector endianness endianness-mandatory?)
+    procedure: (utf32->string bytevector endianness)
+    procedure: (utf32->string bytevector endianness endianness-mandatory?)
+    returns: a string containing the specified decoding of bytevector
+    libraries: (rnrs bytevectors), (rnrs) 
