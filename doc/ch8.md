@@ -24,3 +24,25 @@ Chapter 8. Syntactic Extension
     A portable implementation of the system that also supports libraries and top-level programs is available at http://www.cs.indiana.edu/syntax-case/. 
     A description of the motivations behind and implementation of the system can be found in the article "Syntactic Abstraction in Scheme" [12]. 
     Additional features that have not yet been standardized, including modules, local import, and meta definitions, are described in the Chez Scheme User's Guide [9].
+
+Section 8.1. Keyword Bindings
+
+    This section describes forms that establish bindings between keywords and transformers. 
+    Keyword bindings may be established within a top-level program or library body using define-syntax and 
+    in any local scope using define-syntax, let-syntax, or letrec-syntax.
+
+    syntax: (define-syntax keyword expr) 
+    libraries: (rnrs base), (rnrs)
+
+    expr must evaluate to a transformer.
+
+    The following example defines let* as a syntactic extension, specifying the transformer with syntax-rules (see Section 8.2).
+
+    (define-syntax let*
+      (syntax-rules ()
+        [(_ () b1 b2 ...) (let () b1 b2 ...)]
+        [(_ ((i1 e1) (i2 e2) ...) b1 b2 ...)
+         (let ([i1 e1])
+         (let* ([i2 e2] ...) b1 b2 ...))]))
+
+
