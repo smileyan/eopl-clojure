@@ -43,6 +43,6 @@ Section 8.1. Keyword Bindings
         [(_ () b1 b2 ...) (let () b1 b2 ...)]
         [(_ ((i1 e1) (i2 e2) ...) b1 b2 ...)
          (let ([i1 e1])
-         (let* ([i2 e2] ...) b1 b2 ...))]))
+           (let* ([i2 e2] ...) b1 b2 ...))]))
 
 
