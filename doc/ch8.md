@@ -45,4 +45,32 @@ Section 8.1. Keyword Bindings
          (let ([i1 e1])
            (let* ([i2 e2] ...) b1 b2 ...))]))
 
+    All bindings established by a set of internal definitions, whether keyword or variable definitions, 
+    are visible everywhere within the immediately enclosing body, including within the definitions themselves. For example, the expression
+
+    (let ()
+      (define even?
+        (lambda (x)
+          (or (= x 0) (odd? (- x 1)))))
+      (define-syntax odd?
+        (syntax-rules ()
+          [(_ x) (not (even? x))]))
+      (even? 10))
+
+    is valid and should evaluate to #t.
+
+    The expander processes the initial forms in a library, lambda, or other body from left to right. 
+    If it encounters a variable definition, it records the fact that the defined identifier is a variable but defers expansion of the right-hand-side expression 
+    until after all of the definitions have been processed. 
+    If it encounters a keyword definition, it expands and evaluates the right-hand-side expression and binds the keyword to the resulting transformer. 
+    If it encounters an expression, it fully expands all deferred right-hand-side expressions along with the current and remaining body expressions.
+
+    An implication of the left-to-right processing order is that one internal definition can affect whether a subsequent form is also a definition. For example, the expression
+
+    (let ()
+      (define-syntax bind-to-zero
+        (syntax-rules ()
+          [(_ id) (define id 0)]))
+      (bind-to-zero x)
+      x)
 
