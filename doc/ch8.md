@@ -65,7 +65,8 @@ Section 8.1. Keyword Bindings
     If it encounters a keyword definition, it expands and evaluates the right-hand-side expression and binds the keyword to the resulting transformer. 
     If it encounters an expression, it fully expands all deferred right-hand-side expressions along with the current and remaining body expressions.
 
-    An implication of the left-to-right processing order is that one internal definition can affect whether a subsequent form is also a definition. For example, the expression
+    An implication of the left-to-right processing order is that one internal definition can affect whether a subsequent form is also a definition. 
+    For example, the expression
 
     (let ()
       (define-syntax bind-to-zero
@@ -73,4 +74,39 @@ Section 8.1. Keyword Bindings
           [(_ id) (define id 0)]))
       (bind-to-zero x)
       x)
+
+    evaluates to 0, regardless of any binding for bind-to-zero that might appear outside of the let expression.
+
+    syntax: (let-syntax ((keyword expr) ...) form1 form2 ...) 
+    syntax: (letrec-syntax ((keyword expr) ...) form1 form2 ...) 
+    returns: see below 
+    libraries: (rnrs base), (rnrs)
+
+    Each expr must evaluate to a transformer. For let-syntax and letrec-syntax both, each keyword is bound within the forms form1 form2 .... 
+    For letrec-syntax the binding scope also includes each expr.
+
+    A let-syntax or letrec-syntax form may expand into one or more expressions anywhere expressions are permitted, 
+    in which case the resulting expressions are treated as if enclosed in a begin expression. 
+    It may also expand into zero or more definitions anywhere definitions are permitted, 
+    in which case the definitions are treated as if they appeared in place of the let-syntax or letrec-syntax form.
+
+    The following example highlights how let-syntax and letrec-syntax differ.
+
+    (let ([f (lambda (x) (+ x 1))])
+      (let-syntax ([f (syntax-rules ()
+                           [(_ x) x])]
+                   [g (syntax-rules ()
+                           [(_ x) (f x)])])
+        (list (f 1) (g 1)))) <graphic> (1 2) 
+
+    (let ([f (lambda (x) (+ x 1))])
+      (letrec-syntax ([f (syntax-rules ()
+                           [(_ x) x])]
+                      [g (syntax-rules ()
+                           [(_ x) (f x)])])
+        (list (f 1) (g 1)))) <graphic> (1 1)
+
+    The two expressions are identical except that the let-syntax form in the first expression is a letrec-syntax form in the second. 
+    In the first expression, the f occurring in g refers to the let-bound variable f, 
+    whereas in the second it refers to the keyword f whose binding is established by the letrec-syntax form.
 
