@@ -40,4 +40,23 @@ Chapter 9. Records
     (point-x-set! p (- (point-x p) 12))
     (point-x p) <graphic> 24
 
+    A field may be declared immutable explicitly for clarity; the definition of point below is equivalent to the second definition above.
+
+    (define-record-type point (fields (mutable x) (immutable y)))
+
+    The names of the procedures defined by define-record-type follow the regular naming convention illustrated by the examples above, 
+    by default, but the programmer can override the defaults if desired. 
+    With the following definition of point, the constructor is mkpoint, the predicate is ispoint?, 
+    and the accessors for x and y are x-val and y-val. The mutator for x is set-x-val!.
+
+    (define-record-type (point mkpoint ispoint?)
+      (fields (mutable x x-val set-x-val!)
+              (immutable y y-val)))
+
+    By default, a record definition creates a new type each time it is evaluated, as illustrated by the example below.
+
+    (define (f p)
+      (define-record-type point (fields x y))
+      (if (eq? p 'make) (make-point 3 4) (point? p)))
+    (f (f 'make)) <graphic> #f
 
