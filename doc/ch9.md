@@ -60,3 +60,38 @@ Chapter 9. Records
       (if (eq? p 'make) (make-point 3 4) (point? p)))
     (f (f 'make)) <graphic> #f
 
+    The first (inner) call to f returns a point p, which is passed to f in the second (outer) call, which applies point? to p. 
+    This point? is looking for points of the type created by the second call, while p is a point of the type created by the first call. So point? returns #f.
+
+    This default generative behavior may be overridden by including a nongenerative clause in the record definition.
+
+    (define (f p)
+      (define-record-type point (fields x y) (nongenerative))
+      (if (eq? p 'make) (make-point 3 4) (point? p)))
+    (define p (f 'make))
+    (f p) <graphic> #t
+
+    Record types created in this manner are still distinct from record types created by a definition appearing in a different part of the program, even if the definitions are syntactically identical:
+
+    (define (f)
+      (define-record-type point (fields x y) (nongenerative))
+      (make-point 3 4))
+    (define (g p)
+      (define-record-type point (fields x y) (nongenerative))
+      (point? p))
+    (g (f)) <graphic> #f
+
+    Even this can be overridden by including a uid (unique id) in the nongenerative clause:
+
+    (define (f)
+      (define-record-type point (fields x y)
+        (nongenerative really-the-same-point))
+      (make-point 3 4))
+    (define (g p)
+      (define-record-type point (fields x y)
+        (nongenerative really-the-same-point))
+      (point? p))
+    (g (f)) <graphic> #t
+
+    The uid may be any identifier, but programmers are encouraged to select uids from the RFC 4122 UUID namespace [20], possibly with the record-type name as a prefix.
+
